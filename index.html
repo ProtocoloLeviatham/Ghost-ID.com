@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEVIATHAM | GHOST ID GENERATOR</title>
+    <title>Ghost ID</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuentes Tácticas, de Máquina de Escribir, Sellos y FIRMA -->
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700;800&family=Courier+Prime:wght@400;700&family=Fira+Code:wght@400;600&family=Special+Elite&family=Black+Ops+One&family=Libre+Barcode+39+Text&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
@@ -203,28 +204,51 @@
             overflow: hidden; 
         }
 
+        .dossier-grid-form { 
+            display: grid; 
+            grid-template-columns: repeat(4, 1fr); 
+            gap: 15px; 
+            position: relative; 
+            z-index: 2; 
+            border: 2px solid #333; 
+            padding: 15px; 
+            background: rgba(255,255,255,0.4); 
+        }
+
         /* MEDIA QUERY PARA MÓVILES (FIX DE ANCHO Y TEXTO) */
         @media (max-width: 768px) {
-            .paper-dossier {
-                padding: 20px; 
-                margin: 20px auto;
-                width: 96%;
-                transform: none;
+            .container-main {
+                padding: 10px;
+                width: 100%;
+                overflow-x: hidden;
             }
+            .paper-dossier {
+                padding: 15px; 
+                margin: 20px 0; 
+                width: 100%; 
+                max-width: 100%;
+                transform: none; /* Quitar rotación para aprovechar espacio */
+                box-sizing: border-box;
+            }
+            /* Alinear cuadrícula en una sola columna */
             .dossier-grid-form {
                 display: flex;
                 flex-direction: column;
-                padding: 10px;
+                padding: 5px;
+                gap: 10px;
             }
+            /* Forzar cajas al 100% de ancho */
             .form-box, .form-box.span-2, .form-box.span-4 {
                 width: 100%;
-                margin-bottom: 5px;
+                margin-bottom: 0;
             }
+            /* Ajuste crítico de texto para evitar desbordes */
             .box-value, .box-value.mono-sm {
-                white-space: normal;
-                word-break: break-all;
-                font-size: 12px;
-                line-height: 1.2;
+                white-space: pre-wrap; /* Permitir salto de línea */
+                word-break: break-all; /* Romper palabras largas si es necesario */
+                overflow-wrap: anywhere;
+                font-size: 11px; /* Texto un poco más pequeño */
+                line-height: 1.3;
             }
             .dossier-header-grid {
                 grid-template-columns: 1fr;
@@ -236,6 +260,7 @@
             .paper-watermark {
                 font-size: 4rem;
                 opacity: 0.05;
+                top: 20%;
             }
         }
 
@@ -248,7 +273,7 @@
         .dh-security-box { border: 3px solid #222; text-align: center; padding: 5px; display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.05); }
         .dh-security-label { font-size: 10px; font-weight: bold; display: block; border-bottom: 2px solid #222; }
         .dh-security-level { font-family: 'Black Ops One'; font-size: 24px; color: #b00; line-height: 1.2; }
-        .dossier-grid-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; position: relative; z-index: 2; border: 2px solid #333; padding: 15px; background: rgba(255,255,255,0.4); }
+        
         .form-box { border: 1px solid #555; padding: 8px; position: relative; background: rgba(240, 240, 230, 0.6); }
         .form-box.span-2 { grid-column: span 2; }
         .form-box.span-4 { grid-column: span 4; }
@@ -346,7 +371,7 @@
  | |   / _ \ \ / / |/ _` | __| '_ \ / _` | '_ ` _ \ 
  | |__|  __/\ V /| | (_| | |_| | | | (_| | | | | | |
  |_____\___| \_/ |_|\__,_|\__|_| |_|\__,_|_| |_| |_|
- KALI LINUX // LEVIATHAM EDITION v2.0
+ KALI LINUX // LEVIATHAM EDITION v1.0.0
                 </div>
                 <!-- Dynamic Logs Here -->
             </div>
@@ -365,15 +390,18 @@
             </div>
         </header>
 
-        <!-- PROTOCOLO DE USO (NUEVO) -->
+        <!-- PROTOCOLO DE USO (AMPLIADO Y DETALLADO) -->
         <div class="cyber-panel p-4 mb-6 border-l-4 border-green-600 bg-black/40">
-            <h3 class="text-green-400 font-bold text-sm mb-2 tracking-widest">[ PROTOCOLO DE USO v1.0 ]</h3>
-            <p class="text-xs text-gray-300 leading-relaxed mb-2 font-mono">
-                Esta herramienta genera identidades sintéticas completas para operaciones de OSINT, pentesting ético y anonimato digital. Crea perfiles profundos cruzando más de 20 bases de datos globales, financieras y biométricas simuladas en tiempo real.
-            </p>
-            <div class="bg-green-900/20 p-2 border border-green-800/50 mt-2">
+            <h3 class="text-green-400 font-bold text-sm mb-2 tracking-widest">[ PROTOCOLO DE USO OPERATIVO v2.1 ]</h3>
+            <div class="text-xs text-gray-300 leading-relaxed font-mono space-y-2">
+                <p><strong>OBJETIVO:</strong> Esta herramienta genera identidades sintéticas profundas ("Deep Fakes") para operaciones de OSINT (Open Source Intelligence), Red Teaming y anonimato digital avanzado. Cruza más de 25 bases de datos globales en tiempo real.</p>
+                <p><strong>FUNCIONAMIENTO TÉCNICO:</strong> Al ejecutar el comando de fabricación, el núcleo LEVIATHAM interroga nodos públicos y privados (APIs) para ensamblar un perfil coherente que incluye historial financiero, biometría médica (FDA), antecedentes penales (FBI) y huella digital.</p>
+                <p><strong>ADVERTENCIA LEGAL:</strong> El uso de identidades generadas para fraude, evasión o actividades ilícitas constituye una violación de los estatutos federales de ciberseguridad. LEVIATHAM no registra logs de generación.</p>
+                <p><strong>INSTRUCCIONES:</strong> Seleccione los parámetros objetivo (Género/Región) y ejecute el algoritmo. El sistema realizará inyecciones SQL y scraping de APIs gubernamentales publicas y legales para construir un perfil.</p>
+            </div>
+            <div class="bg-green-900/20 p-2 border border-green-800/50 mt-3">
                 <p class="text-[10px] text-green-300 font-bold">
-                    <i class="fas fa-satellite-dish mr-1"></i> TIP TÁCTICO: El nodo de 'ESTADOS UNIDOS (US)' posee la mayor densidad de datos cruzados y coherencia en las bases de datos federales simuladas (FBI/FDA). Úsalo para expedientes de máxima credibilidad.
+                    <i class="fas fa-satellite-dish mr-1"></i> TIP TÁCTICO: El nodo de 'ESTADOS UNIDOS (US)' posee la mayor densidad de datos cruzados y coherencia en las bases de datos federales (FBI/FDA). Úsalo para expedientes de máxima credibilidad. Para operaciones en LATAM, utilice 'ARGENTINA (AR)' sabiendo que el sistema forzará algoritmos de aproximación cultural si la base de datos local está fragmentada.
                 </p>
             </div>
         </div>
@@ -900,6 +928,33 @@
         function genCompany() { const c = ['OMEGA SOLUTIONS', 'GLOBAL DYNAMICS', 'MASSIVE DYNAMIC', 'CYBERDYNE SYSTEMS', 'ACME CORP']; return c[Math.floor(Math.random() * c.length)]; }
         function genCrypto() { return { coin_name: "Monero", symbol: "XMR" }; }
 
+        // GENERADOR LOCAL DE IDENTIDAD (FALLBACK)
+        // Se usa SOLO si falla la API principal o si no devuelve datos.
+        function genFallbackUser(gender, region) {
+            const firstNamesM = ["John", "David", "Michael", "Chris", "James", "Robert", "William", "Joseph"];
+            const firstNamesF = ["Mary", "Jennifer", "Lisa", "Sarah", "Jessica", "Emily", "Ashley", "Amanda"];
+            const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Garcia"];
+            
+            const first = (gender === 'male') ? firstNamesM[Math.floor(Math.random()*firstNamesM.length)] : firstNamesF[Math.floor(Math.random()*firstNamesF.length)];
+            const last = lastNames[Math.floor(Math.random()*lastNames.length)];
+            
+            // Fecha aleatoria entre 18 y 60 años
+            const age = Math.floor(Math.random() * 42) + 18;
+            const year = new Date().getFullYear() - age;
+            const month = Math.floor(Math.random() * 12) + 1;
+            const day = Math.floor(Math.random() * 28) + 1;
+
+            return {
+                name: { first: first, last: last },
+                location: { country: region.toUpperCase(), city: "Unknown City" },
+                dob: { date: `${year}-${month}-${day}`, age: age },
+                login: { uuid: crypto.randomUUID(), username: (first+last).toLowerCase(), password: "password123", md5: "hashed_pass", sha256: "hashed_pass_sha" },
+                picture: { large: "https://robohash.org/" + first + last + "?set=set1" }, // Fallback image
+                nat: region.toUpperCase(),
+                gender: gender
+            };
+        }
+
         let ghostData = {};
 
         // --- SECUENCIA DE INICIO ---
@@ -1015,7 +1070,7 @@
                 }
             } catch (e) {
                 console.log("Main API failed, engaging fallback protocol.");
-                ghostData.user = { name: { first: "John", last: "Doe" }, location: { country: "Unknown", city: "Unknown" }, dob: { date: "1990-01-01", age: 30 }, login: { uuid: "unknown-uuid", username: "ghost", password: "123" }, picture: { large: "https://robohash.org/fallback" }, nat: "US", gender: "male" };
+                ghostData.user = genFallbackUser(gender, regionSelect);
             }
 
             ghostData.finance = { cc: genCC(), exp: genExp(), cvv: genCVV(), iban: genIBAN(regionSelect), swift: genSwift() };
