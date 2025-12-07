@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LEVIATHAM | GHOST ID GENERATOR</title>
+    <title>Ghost ID</title>
+    <link rel="icon" type="image/png" href="favicon.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Fuentes Tácticas, de Máquina de Escribir, Sellos y FIRMA -->
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700;800&family=Courier+Prime:wght@400;700&family=Fira+Code:wght@400;600&family=Special+Elite&family=Black+Ops+One&family=Libre+Barcode+39+Text&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
@@ -28,6 +29,7 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            perspective: 1000px;
         }
 
         /* --- FONDO RED NEURONAL --- */
@@ -75,7 +77,7 @@
 
         /* --- MOTOR 3D PURO --- */
         .scene-3d {
-            width: 100%; max-width: 600px; height: 380px; /* Altura fija para mantener proporción tarjeta */
+            width: 100%; max-width: 600px; height: 380px; 
             margin: 20px auto;
             perspective: 1500px;
             cursor: grab;
@@ -87,21 +89,21 @@
             width: 100%; height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.1s; /* Movimiento fluido sin lag */
+            transition: transform 0.1s;
         }
 
         /* Caras comunes */
         .card-face {
             position: absolute; width: 100%; height: 100%;
-            backface-visibility: hidden; /* Oculta la cara trasera cuando está dada vuelta */
+            backface-visibility: hidden;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(255,255,255,0.1);
             background-color: #080808;
-            /* Textura base compartida */
             background-image: 
                 radial-gradient(circle at 50% 50%, rgba(0, 50, 0, 0.1) 0%, transparent 60%),
-                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 5px);
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 5px),
+                repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 5px);
             border: 1px solid #444;
         }
 
@@ -111,7 +113,6 @@
             font-family: 'Rajdhani', sans-serif; color: #e0e0e0;
         }
         
-        /* Holograma Frontal */
         .card-face.front::after {
             content: ""; position: absolute; inset: -50%;
             background: linear-gradient(135deg, transparent 40%, rgba(0, 255, 136, 0.2) 45%, rgba(0, 119, 255, 0.2) 50%, rgba(0, 255, 136, 0.2) 55%, transparent 60%);
@@ -120,9 +121,9 @@
             pointer-events: none; z-index: 50; opacity: 0.6;
         }
 
-        /* --- CARA TRASERA (BACK - NUEVO DISEÑO) --- */
+        /* --- CARA TRASERA (BACK) --- */
         .card-face.back {
-            transform: rotateY(180deg); /* Empieza dada vuelta */
+            transform: rotateY(180deg);
             display: flex; flex-direction: column;
             background-color: #0a0a0a;
             font-family: 'Share Tech Mono', monospace;
@@ -153,9 +154,9 @@
         .back-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; }
         .barcode-box { font-family: 'Libre Barcode 39 Text'; font-size: 32px; color: #888; }
 
-        /* --- Estilos internos de la tarjeta (Front) --- */
+        /* --- Estilos internos --- */
         @media (max-width: 600px) {
-            .scene-3d { height: 500px; } /* Más alto en móvil para apilar */
+            .scene-3d { height: 500px; }
             .card-face.front { grid-template-columns: 1fr; text-align: center; }
             .id-sidebar { flex-direction: row; width: 100%; border-right: none; border-bottom: 1px solid #333; padding: 10px; justify-content: center; gap: 15px; flex-wrap: wrap; } 
             .vertical-text { display: none; } 
@@ -183,27 +184,8 @@
         .value-v2.highlight { color: var(--primary); font-size: 15px; font-weight: 800; }
         .mrz-container { font-family: 'OCR-B', 'Courier New', monospace; font-size: 13px; letter-spacing: 2px; color: #222; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 4px; margin-top: auto; width: 100%; white-space: pre; overflow: hidden; font-weight: bold; text-transform: uppercase; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); border: 1px solid #000; }
         
-        .signature-field {
-            font-family: 'Mrs Saint Delafield', cursive;
-            font-size: 24px;
-            color: rgba(0, 0, 0, 0.7); 
-            position: absolute;
-            bottom: 60px;
-            right: 20px;
-            transform: rotate(-5deg);
-            z-index: 5;
-            text-shadow: 0 0 2px rgba(255,255,255,0.5);
-            pointer-events: none;
-            mix-blend-mode: multiply;
-        }
-        /* Firma para modo oscuro */
-        .id-card .signature-field {
-            color: rgba(255, 255, 255, 0.8);
-            mix-blend-mode: normal;
-            text-shadow: 0 0 5px rgba(0,0,0,0.8);
-        }
-
-        /* Glare Effect */
+        .signature-field { font-family: 'Mrs Saint Delafield', cursive; font-size: 24px; color: rgba(0, 0, 0, 0.7); position: absolute; bottom: 60px; right: 20px; transform: rotate(-5deg); z-index: 5; text-shadow: 0 0 2px rgba(255,255,255,0.5); pointer-events: none; mix-blend-mode: multiply; }
+        .id-card .signature-field { color: rgba(255, 255, 255, 0.8); mix-blend-mode: normal; text-shadow: 0 0 5px rgba(0,0,0,0.8); }
         .glare { position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4), transparent 50%); opacity: 0; mix-blend-mode: overlay; pointer-events: none; z-index: 60; }
 
         /* --- EXPEDIENTE PAPEL --- */
@@ -228,24 +210,65 @@
         .comms-box { background: rgba(0,0,0,0.05); padding: 15px; border-left: 4px solid #b00; font-style: italic; }
         .dossier-footer { text-center: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #333; font-family: 'Fira Code', monospace; font-size: 10px; color: #555; position: relative; z-index: 2; }
 
-        /* --- TERMINAL LINUX BOOT --- */
-        #hack-terminal { position: fixed; inset: 0; background: #000; z-index: 100; padding: 20px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px; color: #ccc; display: none; flex-direction: column; line-height: 1.4; cursor: text; overflow: hidden; }
-        .terminal-header { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2rem; border-bottom: 1px solid #333; padding-bottom: 1rem; width: 100%; }
-        .linux-ascii { color: var(--primary); font-size: 10px; line-height: 10px; white-space: pre; font-weight: bold; text-align: center; margin-bottom: 10px; text-shadow: 0 0 5px rgba(0,255,0,0.5); }
-        .boot-log { flex-grow: 1; overflow-y: hidden; display: flex; flex-direction: column; justify-content: flex-end; width: 100%; max-width: 900px; margin: 0 auto; }
-        .log-line { display: flex; align-items: flex-start; margin-bottom: 2px; }
+        /* --- TERMINAL WINDOW STYLE --- */
+        #hack-terminal { 
+            position: fixed; inset: 0; z-index: 100;
+            display: none; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.85); /* Fondo oscuro semitransparente */
+            backdrop-filter: blur(5px);
+        }
+        
+        .terminal-window {
+            width: 90%; max-width: 800px; height: 80%; max-height: 600px;
+            background: #000;
+            border: 1px solid #333;
+            box-shadow: 0 0 40px rgba(0, 255, 0, 0.2);
+            display: flex; flex-direction: column;
+            border-radius: 6px;
+            overflow: hidden;
+            font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px; color: #ccc;
+        }
+
+        .terminal-bar {
+            background: #1a1a1a; padding: 8px 15px;
+            border-bottom: 1px solid #333;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .terminal-controls { display: flex; gap: 8px; }
+        .control-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .dot-red { background: #ff5f56; } .dot-yellow { background: #ffbd2e; } .dot-green { background: #27c93f; }
+        .terminal-title { color: #888; font-size: 12px; font-weight: bold; }
+
+        .boot-log { 
+            flex-grow: 1; overflow-y: auto; padding: 20px;
+            line-height: 1.4; scrollbar-width: thin; scrollbar-color: #333 #000;
+        }
+        /* Custom scrollbar */
+        .boot-log::-webkit-scrollbar { width: 8px; }
+        .boot-log::-webkit-scrollbar-track { background: #000; }
+        .boot-log::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
+
+        .linux-ascii { 
+            color: var(--primary); font-size: 10px; line-height: 10px; white-space: pre; 
+            font-weight: bold; margin-bottom: 20px;
+            text-shadow: 0 0 5px rgba(0,255,0,0.5);
+        }
+        
+        .log-line { display: flex; align-items: flex-start; margin-bottom: 4px; }
         .log-time { color: #666; margin-right: 15px; min-width: 80px; }
         .log-status { font-weight: bold; margin-right: 10px; min-width: 50px; text-align: center; }
         .status-ok { color: var(--primary); }
         .status-fail { color: #ff3333; }
         .status-warn { color: #ffcc00; }
         .log-msg { color: #ddd; white-space: pre-wrap; word-break: break-all; }
+
         .prompt-line { display: flex; align-items: center; color: #fff; margin-top: 10px; }
         .prompt-user { color: #ff3333; font-weight: bold; }
         .prompt-host { color: #fff; }
         .prompt-path { color: #3333ff; font-weight: bold; }
         .cursor-blink { display: inline-block; width: 8px; height: 16px; background: #ccc; animation: blink 1s step-end infinite; margin-left: 5px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        
         .glitch { font-size: 2.5rem; font-weight: bold; text-transform: uppercase; text-shadow: 2px 2px 0px #f00, -2px -2px 0px #00f; animation: glitch 1s infinite alternate; }
         .glitch-sm { font-size: 1rem; text-shadow: 1px 1px 0px #f00, -1px -1px 0px #00f; animation: glitch 2s infinite alternate-reverse; }
         @keyframes glitch { 0% { text-shadow: 2px 2px 0px #f00; } 100% { text-shadow: -2px -2px 0px #00f; } }
@@ -255,20 +278,30 @@
     <canvas id="neural-canvas"></canvas>
     <div class="scanline"></div>
 
-    <!-- TERMINAL DE CARGA SYSTEM404G -->
+    <!-- TERMINAL DE CARGA SYSTEM404G (ENCUADRADA) -->
     <div id="hack-terminal">
-        <div class="terminal-header">
-            <div class="mb-2 text-4xl text-green-600 animate-pulse"><i class="fas fa-biohazard"></i></div>
-            <div class="linux-ascii">
+        <div class="terminal-window">
+            <div class="terminal-bar">
+                <div class="terminal-controls">
+                    <div class="control-dot dot-red"></div>
+                    <div class="control-dot dot-yellow"></div>
+                    <div class="control-dot dot-green"></div>
+                </div>
+                <div class="terminal-title">root@leviatham:~</div>
+                <div style="width: 40px;"></div> <!-- Spacer -->
+            </div>
+            <div class="boot-log" id="boot-log">
+                <div class="linux-ascii">
   _               _       _   _                     
  | |    _____   _(_) __ _| |_| |__   __ _ _ __ ___  
  | |   / _ \ \ / / |/ _` | __| '_ \ / _` | '_ ` _ \ 
  | |__|  __/\ V /| | (_| | |_| | | | (_| | | | | | |
  |_____\___| \_/ |_|\__,_|\__|_| |_|\__,_|_| |_| |_|
+ KALI LINUX // LEVIATHAM EDITION v2.0
+                </div>
+                <!-- Dynamic Logs Here -->
             </div>
-            <div class="text-xs text-gray-500 tracking-[0.3em] font-bold mt-2">KALI LINUX // LEVIATHAM EDITION v2.0</div>
         </div>
-        <div class="boot-log" id="boot-log"></div>
     </div>
 
     <div class="container-main">
@@ -282,6 +315,19 @@
                 <span class="text-green-600">NODE: <span class="text-white">KALI_01</span></span>
             </div>
         </header>
+
+        <!-- PROTOCOLO DE USO (NUEVO) -->
+        <div class="cyber-panel p-4 mb-6 border-l-4 border-green-600 bg-black/40">
+            <h3 class="text-green-400 font-bold text-sm mb-2 tracking-widest">[ PROTOCOLO DE USO v1.0 ]</h3>
+            <p class="text-xs text-gray-300 leading-relaxed mb-2 font-mono">
+                Esta herramienta genera identidades sintéticas completas para operaciones de OSINT, pentesting ético y anonimato digital. Crea perfiles profundos cruzando más de 20 bases de datos globales, financieras y biométricas en tiempo real.
+            </p>
+            <div class="bg-green-900/20 p-2 border border-green-800/50 mt-2">
+                <p class="text-[10px] text-green-300 font-bold">
+                    <i class="fas fa-satellite-dish mr-1"></i> TIP TÁCTICO: El nodo de 'ESTADOS UNIDOS (US)' posee la mayor densidad de datos cruzados y coherencia en las bases de datos federales simuladas (FBI/FDA). Úsalo para expedientes de máxima credibilidad.
+                </p>
+            </div>
+        </div>
 
         <!-- PANEL DE CONFIGURACIÓN -->
         <div id="config-panel" class="cyber-panel p-6">
@@ -308,6 +354,12 @@
                         <option value="br">BRASIL (BR)</option>
                         <option value="mx">MÉXICO (MX)</option>
                         <option value="ru">RUSIA (RU)</option>
+                        <option value="ar">ARGENTINA (AR)</option>
+                        <option value="it">ITALIA (IT)</option>
+                        <option value="cn">CHINA (CN)</option>
+                        <option value="jp">JAPÓN (JP)</option>
+                        <option value="ua">UCRANIA (UA)</option>
+                        <option value="il">ISRAEL (IL)</option>
                     </select>
                 </div>
             </div>
@@ -575,6 +627,11 @@
                         <span class="box-label">LAST KNOWN USER AGENT</span>
                         <span class="box-value mono-sm" style="font-size: 10px;" id="doc-ua">---</span>
                     </div>
+                    <!-- NUEVA: Hardware -->
+                    <div class="form-box span-4">
+                        <span class="box-label">PRIMARY WORKSTATION CONFIG</span>
+                        <span class="box-value mono-sm" id="doc-hardware">---</span>
+                    </div>
                     
                     <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
                         <span class="box-label" style="color: #aaa; border-color: #555;">SECTION VI: MISSION STATUS</span>
@@ -587,10 +644,129 @@
                         <span class="box-label">ASSIGNED EQUIPMENT</span>
                         <span class="box-value" id="doc-equipment">---</span>
                     </div>
+                    
+                    <!-- NUEVA SECCION VII: SUPPLEMENTARY DATA (NUEVAS APIS) -->
+                    <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
+                        <span class="box-label" style="color: #aaa; border-color: #555;">SECTION VII: SUPPLEMENTARY DATA</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">MEDICAL STRAIN / SUBSTANCE</span>
+                        <span class="box-value" id="doc-medical">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">NETWORK PLAN ID</span>
+                        <span class="box-value mono-sm" id="doc-sub">---</span>
+                    </div>
+                    
+                    <!-- NUEVA SECCION VIII: PSYCHOLOGICAL & LIFESTYLE -->
+                    <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
+                        <span class="box-label" style="color: #aaa; border-color: #555;">SECTION VIII: PSYCHOLOGICAL PROFILE</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">SIGNATURE DRINK</span>
+                        <span class="box-value" id="doc-drink">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">CAFFEINE INTAKE SOURCE</span>
+                        <span class="box-value" id="doc-coffee">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">PSYCH-AUDIO PROFILE</span>
+                        <span class="box-value" id="doc-music">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">KNOWN WEAKNESS</span>
+                        <span class="box-value highlight" id="doc-weakness">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">EXTRACTION POINT (NATION)</span>
+                        <span class="box-value" id="doc-nation">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">SECURITY CLEARANCE HEX</span>
+                        <span class="box-value mono-sm" id="doc-color">---</span>
+                    </div>
+                    
+                    <!-- NUEVA SECCION IX: BACKGROUND & SITUATION (NUEVAS APIS SERIAS) -->
+                    <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
+                        <span class="box-label" style="color: #aaa; border-color: #555;">SECTION IX: ACADEMIC & SITUATIONAL AWARENESS</span>
+                    </div>
+                    <div class="form-box span-4">
+                        <span class="box-label">ALMA MATER / ACADEMIC ORIGIN</span>
+                        <span class="box-value" id="doc-university">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">ORIGIN METADATA (COUNTRY)</span>
+                        <span class="box-value" id="doc-origin-meta">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">CURRENT ZONE TEMP (EXT. POINT)</span>
+                        <span class="box-value highlight" id="doc-temp">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">WIND CONDITIONS</span>
+                        <span class="box-value mono-sm" id="doc-wind">---</span>
+                    </div>
+
+                    <!-- NUEVA SECCION X: MEDICAL & CRIMINAL BACKGROUND (NUEVAS APIS GOV) -->
+                    <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
+                        <span class="box-label" style="color: #aaa; border-color: #555;">SECTION X: MEDICAL & CRIMINAL BACKGROUND</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">KNOWN ALLERGIES / MEDICATION (FDA RECORD)</span>
+                        <span class="box-value text-red-700" id="doc-fda-med">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">PRIOR OFFENSE / WARRANT ISSUED BY (FBI)</span>
+                        <span class="box-value highlight text-red-700" id="doc-fbi-record">---</span>
+                    </div>
+                    
+                    <!-- NUEVA SECCION XI: HARDWARE (NUEVA API) -->
+                     <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
+                        <span class="box-label" style="color: #aaa; border-color: #555;">SECTION XI: HARDWARE & GEOPOLITICS</span>
+                    </div>
+                    
+                    <!-- NUEVA SECCION XII: COVER & TECH (NUEVAS APIS 13 Y 14) -->
+                    <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
+                        <span class="box-label" style="color: #aaa; border-color: #555;">SECTION XII: COVER IDENTITY & TECH SKILLS</span>
+                    </div>
+                    <div class="form-box span-4">
+                        <span class="box-label">COVER ASSIGNMENT MISSION</span>
+                        <span class="box-value highlight" id="doc-cover-mission">---</span>
+                    </div>
+                    <div class="form-box span-4">
+                        <span class="box-label">TECHNICAL APTITUDE / SKILLSET</span>
+                        <span class="box-value mono-sm" id="doc-tech-skill">---</span>
+                    </div>
+                    
+                    <!-- NUEVA SECCION XIII: AI PREDICTIVE ANALYTICS & ENV. (NUEVAS APIS) -->
+                    <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
+                        <span class="box-label" style="color: #aaa; border-color: #555;">SECTION XIII: AI PREDICTIVE ANALYTICS & ENV.</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">AI ESTIMATED BIOLOGICAL AGE</span>
+                        <span class="box-value highlight" id="doc-ai-age">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">ETHNIC ORIGIN PROBABILITY</span>
+                        <span class="box-value" id="doc-ai-eth">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">ASSIGNED K-9 UNIT (BREED)</span>
+                        <span class="box-value" id="doc-k9">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">STRESS TEST RESPONSE</span>
+                        <span class="box-value italic" id="doc-insult" style="font-size: 10px;">---</span>
+                    </div>
+                    <div class="form-box span-4">
+                        <span class="box-label">DAYLIGHT OPERATIONAL WINDOW</span>
+                        <span class="box-value mono-sm" id="doc-sun">---</span>
+                    </div>
                 </div>
 
                  <div class="paper-section mt-6">
-                     <div class="paper-title" style="background: #b00;">VII. INTERCEPTED COMMUNICATION FRAGMENT</div>
+                     <div class="paper-title" style="background: #b00;">XIV. INTERCEPTED COMMUNICATION FRAGMENT</div>
                      <div class="comms-box">
                         "<span id="doc-quote">---</span>"
                     </div>
@@ -642,6 +818,23 @@
         function genDept() { return "FIELD OPS"; }
         function genBeer() { return "PROJECT CHAOS"; }
         function genAppliance() { return "TACTICAL SCANNER"; }
+        function genMedical() { return "STIMULANT - ADRENALINE (SYNTH)"; }
+        function genSub() { return "SAT-UPLINK-PLAN-ALPHA"; }
+        function genDrink() { return "VESPER MARTINI"; }
+        function genCoffee() { return "ARABICA DARK ROAST"; }
+        function genGenre() { return "DARK SYNTHWAVE"; }
+        function genColor() { return "#00FF00"; }
+        function genDessert() { return "DARK CHOCOLATE"; }
+        function genNation() { return "CLASSIFIED LOCATION"; }
+        function genUniversity() { return "MIT - MASS. INSTITUTE OF TECH."; }
+        function genWeather() { return "18°C (CLEAR SKY)"; }
+        function genHardware() { return "CUSTOM LINUX TERMINAL / ENCRYPTED"; }
+        function genOriginMeta() { return "UNKNOWN ORIGIN"; }
+        function genCoverMission() { return "INFILTRATE AND DISRUPT"; }
+        function genTechSkill() { return "ADVANCED CRYPTOGRAPHY / NETWORKING"; }
+        function genK9() { return "MALINOIS - 'REX'"; }
+        function genInsult() { return "You fight like a dairy farmer."; }
+        
         function genDNI(age) {
             let base, range;
             if (age < 20) { base = 50000000; range = 10000000; }
@@ -657,6 +850,33 @@
         function genEyes() { const e = ['BROWN', 'BLUE', 'GREEN', 'HAZEL', 'GRAY']; return e[Math.floor(Math.random() * e.length)]; }
         function genCompany() { const c = ['OMEGA SOLUTIONS', 'GLOBAL DYNAMICS', 'MASSIVE DYNAMIC', 'CYBERDYNE SYSTEMS', 'ACME CORP']; return c[Math.floor(Math.random() * c.length)]; }
         function genCrypto() { return { coin_name: "Monero", symbol: "XMR" }; }
+
+        // GENERADOR LOCAL DE IDENTIDAD (FALLBACK)
+        // Se usa SOLO si falla la API principal o si no devuelve datos.
+        function genFallbackUser(gender, region) {
+            const firstNamesM = ["John", "David", "Michael", "Chris", "James", "Robert", "William", "Joseph"];
+            const firstNamesF = ["Mary", "Jennifer", "Lisa", "Sarah", "Jessica", "Emily", "Ashley", "Amanda"];
+            const lastNames = ["Smith", "Johnson", "Williams", "Brown", "Jones", "Miller", "Davis", "Garcia"];
+            
+            const first = (gender === 'male') ? firstNamesM[Math.floor(Math.random()*firstNamesM.length)] : firstNamesF[Math.floor(Math.random()*firstNamesF.length)];
+            const last = lastNames[Math.floor(Math.random()*lastNames.length)];
+            
+            // Fecha aleatoria entre 18 y 60 años
+            const age = Math.floor(Math.random() * 42) + 18;
+            const year = new Date().getFullYear() - age;
+            const month = Math.floor(Math.random() * 12) + 1;
+            const day = Math.floor(Math.random() * 28) + 1;
+
+            return {
+                name: { first: first, last: last },
+                location: { country: region.toUpperCase(), city: "Unknown City" },
+                dob: { date: `${year}-${month}-${day}`, age: age },
+                login: { uuid: crypto.randomUUID(), username: (first+last).toLowerCase(), password: "password123", md5: "hashed_pass", sha256: "hashed_pass_sha" },
+                picture: { large: "https://robohash.org/" + first + last + "?set=set1" }, // Fallback image
+                nat: region.toUpperCase(),
+                gender: gender
+            };
+        }
 
         let ghostData = {};
 
@@ -700,6 +920,19 @@
                 { msg: "Establishing operation codename...", status: "OK" },
                 { msg: "Establishing shell company cover...", status: "OK" },
                 { msg: "Diversifying crypto assets...", status: "OK" },
+                { msg: "Fetching medical & subscription data...", status: "OK" },
+                { msg: "Profiling psychological triggers...", status: "OK" },
+                { msg: "Calculating extraction points...", status: "OK" },
+                { msg: "Querying academic databases...", status: "OK" },
+                { msg: "Synching weather satellite telemetry...", status: "OK" },
+                { msg: "Cross-referencing FBI & FDA records...", status: "OK" },
+                { msg: "Scanning Global Hardware Registry...", status: "OK" },
+                { msg: "Accessing Geopolitical Metadata...", status: "OK" },
+                { msg: "Constructing Corporate Cover Identity...", status: "OK" },
+                { msg: "Evaluating Technical Skillset...", status: "OK" },
+                { msg: "Querying AI Predictive Biometrics...", status: "OK" },
+                { msg: "Analyzing Ethnic Origin Probabilities...", status: "OK" },
+                { msg: "Calculating Daylight Operational Windows...", status: "OK" },
                 { msg: "Finalizing dossier composition...", status: "OK" },
                 { msg: "Starting X11 server...", status: "OK" },
                 { msg: "Reached target Graphical Interface.", status: "OK" }
@@ -718,7 +951,8 @@
 
                     const time = (Math.random() * 10).toFixed(6);
                     logOutput.innerHTML += `<div class="log-line"><span class="log-time">[    ${time}]</span>${statusHtml}<span class="log-msg">${item.msg}</span></div>`;
-                    window.scrollTo(0, document.body.scrollHeight);
+                    const bootLog = document.getElementById('boot-log');
+                    bootLog.scrollTop = bootLog.scrollHeight;
                     cmdIndex++;
                 } else {
                     clearInterval(logInterval);
@@ -732,7 +966,7 @@
                         renderResults();
                     }, 1500);
                 }
-            }, 200);
+            }, 100); // Velocidad aumentada para no aburrir
         }
 
         function resetApp() {
@@ -743,17 +977,26 @@
 
         async function fetchData() {
             const gender = document.getElementById('gender').value;
-            const region = document.getElementById('region').value;
-
+            const regionSelect = document.getElementById('region').value;
+            
+            // LOGICA PURA: Se pide a la API la nacionalidad exacta. Si la API no la soporta,
+            // la API misma decidirá qué devolver (normalmente un fallback interno).
+            // Solo si fetch falla por red (catch), usamos nuestro generador local.
             try {
-                const res = await fetch(`https://randomuser.me/api/?results=1&gender=${gender}&nat=${region}`);
+                const res = await fetch(`https://randomuser.me/api/?results=1&gender=${gender}&nat=${regionSelect}`);
+                if (!res.ok) throw new Error("API Error");
                 const data = await res.json();
-                ghostData.user = data.results[0];
+                if (data.results && data.results.length > 0) {
+                    ghostData.user = data.results[0];
+                } else {
+                    throw new Error("No results");
+                }
             } catch (e) {
-                ghostData.user = { name: { first: "John", last: "Doe" }, location: { country: "Unknown", city: "Unknown" }, dob: { date: "1990-01-01", age: 30 }, login: { uuid: "unknown-uuid", username: "ghost", password: "123" }, picture: { large: "https://robohash.org/fallback" }, nat: "US", gender: "male" };
+                console.log("Main API failed, engaging fallback protocol.");
+                ghostData.user = genFallbackUser(gender, regionSelect);
             }
 
-            ghostData.finance = { cc: genCC(), exp: genExp(), cvv: genCVV(), iban: genIBAN(region), swift: genSwift() };
+            ghostData.finance = { cc: genCC(), exp: genExp(), cvv: genCVV(), iban: genIBAN(regionSelect), swift: genSwift() };
             ghostData.net = { ip: genIP(), mac: genMAC() };
 
             try { const res = await fetch('https://api.adviceslip.com/advice'); const data = await res.json(); ghostData.quote = data.slip.advice; } catch(e) { ghostData.quote = "System failure. Proceed with caution."; }
@@ -768,18 +1011,185 @@
             try { const res = await fetch('https://random-data-api.com/api/v2/appliances'); const data = await res.json(); ghostData.equipment = data.equipment; } catch(e) { ghostData.equipment = genAppliance(); }
             try { const res = await fetch('https://random-data-api.com/api/v2/company'); const data = await res.json(); ghostData.company = data.business_name; } catch(e) { ghostData.company = genCompany(); }
             try { const res = await fetch('https://random-data-api.com/api/v2/crypto_coin'); const data = await res.json(); ghostData.altcoin = `${data.coin_name} (${data.symbol})`; } catch(e) { const c = genCrypto(); ghostData.altcoin = `${c.coin_name} (${c.symbol})`; }
+            try { const res = await fetch('https://random-data-api.com/api/v2/cannabis'); const data = await res.json(); ghostData.medical = `${data.strain} (${data.type})`; } catch(e) { ghostData.medical = genMedical(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/subscription'); const data = await res.json(); ghostData.sub = `${data.plan} - ${data.status}`; } catch(e) { ghostData.sub = genSub(); }
+            
+            // SECCIÓN VIII: NUEVAS APIS
+            try { const res = await fetch('https://www.thecocktaildb.com/api/json/v1/1/random.php'); const data = await res.json(); ghostData.drink = data.drinks[0].strDrink; } catch(e) { ghostData.drink = genDrink(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/coffee'); const data = await res.json(); ghostData.coffee = data.blend_name; } catch(e) { ghostData.coffee = genCoffee(); }
+            try { const res = await fetch('https://binaryjazz.us/wp-json/genrenator/v1/genre/'); const data = await res.json(); ghostData.genre = data; } catch(e) { ghostData.genre = genGenre(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/color'); const data = await res.json(); ghostData.color = `${data.color_name.toUpperCase()} (${data.hex_value})`; } catch(e) { ghostData.color = genColor(); }
+            
+            // NUEVAS ADICIONES: DESSERT & NATION
+            try { const res = await fetch('https://random-data-api.com/api/v2/desserts'); const data = await res.json(); ghostData.weakness = `${data.variety} (${data.topping})`; } catch(e) { ghostData.weakness = genDessert(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/nation'); const data = await res.json(); ghostData.nation = `${data.nationality} - ${data.capital}`; } catch(e) { ghostData.nation = genNation(); }
+
+            // SECCIÓN IX: NUEVAS APIS SERIAS (Universidades & Clima)
+            try { 
+                let countryParam = 'United+States';
+                if (regionSelect === 'ar') countryParam = 'Argentina';
+                else if (regionSelect === 'gb') countryParam = 'United+Kingdom';
+                else if (regionSelect === 'fr') countryParam = 'France';
+                else if (regionSelect === 'de') countryParam = 'Germany';
+                else if (regionSelect === 'es') countryParam = 'Spain';
+                else if (regionSelect === 'br') countryParam = 'Brazil';
+                else if (regionSelect === 'mx') countryParam = 'Mexico';
+                else if (regionSelect === 'ru') countryParam = 'Russian+Federation';
+                else if (regionSelect === 'cn') countryParam = 'China';
+                else if (regionSelect === 'jp') countryParam = 'Japan';
+                else if (regionSelect === 'it') countryParam = 'Italy';
+                else if (regionSelect === 'ua') countryParam = 'Ukraine';
+                else if (regionSelect === 'il') countryParam = 'Israel';
+
+                const res = await fetch(`http://universities.hipolabs.com/search?country=${countryParam}`); 
+                const data = await res.json(); 
+                if (data.length > 0) {
+                     const randUni = data[Math.floor(Math.random() * data.length)];
+                     ghostData.university = randUni.name;
+                } else {
+                    ghostData.university = genUniversity();
+                }
+            } catch(e) { ghostData.university = genUniversity(); }
+
+            try {
+                const lat = (Math.random() * 180 - 90).toFixed(2);
+                const lon = (Math.random() * 360 - 180).toFixed(2);
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                const data = await res.json();
+                ghostData.weather = `${data.current_weather.temperature}°C`;
+                ghostData.wind = `${data.current_weather.windspeed} km/h`;
+            } catch(e) {
+                ghostData.weather = genWeather();
+                ghostData.wind = "UNKNOWN";
+            }
+
+            // SECCIÓN X: NUEVAS APIS GOV (openFDA & FBI)
+            try {
+                const skip = Math.floor(Math.random() * 500);
+                const res = await fetch(`https://api.fda.gov/drug/label.json?limit=1&skip=${skip}`);
+                const data = await res.json();
+                const drug = data.results[0];
+                const brand = drug.openfda.brand_name ? drug.openfda.brand_name[0] : "CLASSIFIED MED";
+                const substance = drug.openfda.substance_name ? drug.openfda.substance_name[0] : "UNKNOWN AGENT";
+                ghostData.fdaMed = `${brand} (${substance})`;
+            } catch(e) {
+                ghostData.fdaMed = "IBUPROFEN 800MG";
+            }
+
+            try {
+                const page = Math.floor(Math.random() * 10) + 1;
+                const res = await fetch(`https://api.fbi.gov/wanted/v1/list?page=${page}`);
+                const data = await res.json();
+                const item = data.items[0];
+                const office = item.field_offices ? item.field_offices[0] : "INTERPOL HQ";
+                const subject = item.subjects ? item.subjects[0] : "ESPIONAGE";
+                ghostData.fbiRecord = `${subject} // OFFICE: ${office}`;
+            } catch(e) {
+                ghostData.fbiRecord = "CYBERCRIME // OFFICE: WASHINGTON D.C.";
+            }
+
+            // SECCIÓN XI: NUEVAS APIS TÉCNICAS (RestCountries & Computers)
+            try {
+                let countryCode = regionSelect;
+                if (countryCode === 'en') countryCode = 'us'; 
+                const res = await fetch(`https://restcountries.com/v3.1/alpha/${countryCode}`);
+                const data = await res.json();
+                const c = data[0];
+                ghostData.originMeta = `CAP: ${c.capital ? c.capital[0] : 'UNK'} | TZ: ${c.timezones ? c.timezones[0] : 'UTC'}`;
+            } catch(e) {
+                ghostData.originMeta = genOriginMeta();
+            }
+
+            try {
+                const res = await fetch('https://random-data-api.com/api/v2/computers');
+                const data = await res.json();
+                ghostData.hardware = `${data.platform} / ${data.os} / ${data.type}`;
+            } catch(e) {
+                ghostData.hardware = genHardware();
+            }
+            
+            // SECCIÓN XII: CORPORATE BS & TECHY
+            try {
+                const res = await fetch('https://corporatebs-generator.sameerkumar.website/');
+                const data = await res.json();
+                ghostData.coverMission = data.phrase;
+            } catch(e) {
+                ghostData.coverMission = genCoverMission();
+            }
+            
+            try {
+                const res = await fetch('https://techy-api.vercel.app/api/json');
+                const data = await res.json();
+                ghostData.techSkill = data.message;
+            } catch(e) {
+                ghostData.techSkill = genTechSkill();
+            }
+
+            // SECCIÓN XIII: AI PREDICTIVE ANALYTICS & ENV (NUEVAS: AGIFY, NATIONALIZE, SUNRISE-SUNSET, DOG, EVIL INSULT)
+            // Necesitamos el nombre para las APIs de predicción
+            const firstName = ghostData.user.name.first;
+            
+            try {
+                const res = await fetch(`https://api.agify.io?name=${firstName}`);
+                const data = await res.json();
+                ghostData.aiAge = `${data.age} YEARS (${(data.count/1000).toFixed(1)}K CONF)`;
+            } catch(e) {
+                ghostData.aiAge = "UNABLE TO PREDICT";
+            }
+
+            try {
+                const res = await fetch(`https://api.nationalize.io?name=${firstName}`);
+                const data = await res.json();
+                if(data.country && data.country.length > 0) {
+                    const c = data.country[0];
+                    ghostData.aiEth = `${c.country_id} (${(c.probability*100).toFixed(1)}%)`;
+                } else {
+                    ghostData.aiEth = "UNKNOWN ORIGIN";
+                }
+            } catch(e) {
+                ghostData.aiEth = "DATA CORRUPTED";
+            }
+
+            try {
+                // Lat/Lon from previous step or random
+                const lat = 36.7201600; const lng = -4.4203400; // Default coords
+                const res = await fetch(`https://api.sunrise-sunset.org/json?lat=${lat}&lng=${lng}`);
+                const data = await res.json();
+                ghostData.sun = `${data.results.sunrise} - ${data.results.sunset} UTC`;
+            } catch(e) {
+                ghostData.sun = "06:00 AM - 18:00 PM";
+            }
+
+            try {
+                const res = await fetch('https://dog.ceo/api/breeds/image/random');
+                const data = await res.json();
+                // Extraer raza de la URL
+                const breed = data.message.split('/')[4].toUpperCase();
+                ghostData.k9 = breed;
+            } catch(e) {
+                ghostData.k9 = genK9();
+            }
+
+            try {
+                // Evil Insult Generator (HTTPS, JSON)
+                const res = await fetch('https://evilinsult.com/generate_insult.php?lang=en&type=json');
+                const data = await res.json();
+                ghostData.insult = data.insult;
+            } catch(e) {
+                ghostData.insult = genInsult();
+            }
         }
 
         // --- SAFE SETTER ---
         function setVal(id, val) {
             const el = document.getElementById(id);
             if (el) el.innerText = val;
-            // else console.warn("Elemento no encontrado:", id); // Silenced for production feel
         }
 
         function renderResults() {
             const u = ghostData.user;
             const age = u.dob.age;
+            const regionSelect = document.getElementById('region').value; // Obtener el valor seleccionado para mostrar en DNI
             
             const userPic = document.getElementById('card-photo'); if(userPic) userPic.src = u.picture.large;
             const ghostPic = document.getElementById('card-ghost-photo'); if(ghostPic) ghostPic.src = u.picture.large;
@@ -795,8 +1205,8 @@
             setVal('card-signature', sig);
             setVal('card-signature-back', sig);
             
-            const natLabel = (document.getElementById('region').value === 'ru') ? 'RUS' : u.nat;
-            setVal('card-nat', natLabel);
+            // Mostrar la nacionalidad seleccionada
+            setVal('card-nat', regionSelect.toUpperCase());
             
             const dob = new Date(u.dob.date);
             setVal('card-dob', dob.toLocaleDateString());
@@ -814,7 +1224,7 @@
 
             const mrz1 = `P<LVT${u.name.last.toUpperCase()}<<${u.name.first.toUpperCase()}`;
             const rnd = Math.floor(Math.random() * 9999999);
-            const mrz2 = `${u.login.uuid.substring(0,9).toUpperCase()}${u.nat}000000${u.gender==='male'?'M':'F'}${rnd}`;
+            const mrz2 = `${u.login.uuid.substring(0,9).toUpperCase()}${regionSelect.toUpperCase()}000000${u.gender==='male'?'M':'F'}${rnd}`;
             const mrzEl = document.getElementById('card-mrz');
             if(mrzEl) mrzEl.innerHTML = `${mrz1.substring(0,44)}<br>${mrz2.substring(0,44)}`;
 
@@ -843,6 +1253,41 @@
             setVal('doc-ua', ghostData.ua || genUA());
             setVal('doc-op-name', `OPERATION: ${(ghostData.opName || genBeer()).toUpperCase()}`);
             setVal('doc-equipment', (ghostData.equipment || genAppliance()).toUpperCase());
+            setVal('doc-medical', (ghostData.medical || genMedical()).toUpperCase());
+            setVal('doc-sub', (ghostData.sub || genSub()).toUpperCase());
+            
+            // SECCIÓN VIII
+            setVal('doc-drink', (ghostData.drink || genDrink()).toUpperCase());
+            setVal('doc-coffee', (ghostData.coffee || genCoffee()).toUpperCase());
+            setVal('doc-music', (ghostData.genre || genGenre()).toUpperCase());
+            setVal('doc-color', ghostData.color || genColor());
+            setVal('doc-weakness', (ghostData.weakness || genDessert()).toUpperCase());
+            setVal('doc-nation', (ghostData.nation || genNation()).toUpperCase());
+
+            // SECCIÓN IX
+            setVal('doc-university', (ghostData.university || genUniversity()).toUpperCase());
+            setVal('doc-temp', ghostData.weather || "N/A");
+            setVal('doc-wind', ghostData.wind || "N/A");
+            
+            // SECCIÓN X
+            setVal('doc-fda-med', (ghostData.fdaMed || "CLASSIFIED MEDICAL RECORD").toUpperCase());
+            setVal('doc-fbi-record', (ghostData.fbiRecord || "NO ACTIVE WARRANTS").toUpperCase());
+            
+            // SECCIÓN XI
+            setVal('doc-origin-meta', (ghostData.originMeta || genOriginMeta()).toUpperCase());
+            setVal('doc-hardware', (ghostData.hardware || genHardware()).toUpperCase());
+            
+            // SECCIÓN XII
+            setVal('doc-cover-mission', (ghostData.coverMission || genCoverMission()).toUpperCase());
+            setVal('doc-tech-skill', (ghostData.techSkill || genTechSkill()).toUpperCase());
+
+            // SECCIÓN XIII
+            setVal('doc-ai-age', ghostData.aiAge || "CALCULATING...");
+            setVal('doc-ai-eth', ghostData.aiEth ? ghostData.aiEth.toUpperCase() : "UNKNOWN");
+            setVal('doc-k9', (ghostData.k9 || genK9()).toUpperCase());
+            setVal('doc-insult', `"${ghostData.insult || genInsult()}"`);
+            setVal('doc-sun', ghostData.sun || "06:00 - 18:00 UTC");
+
             setVal('doc-quote', `${ghostData.quote}`);
 
             document.getElementById('results-container').classList.remove('hidden');
@@ -879,13 +1324,11 @@
                 currentX = clientX - startX;
                 currentY = clientY - startY;
 
-                // Mapear movimiento a grados (ajustar sensibilidad)
                 rotationY = currentX * 0.5; 
-                rotationX = -(currentY * 0.5); // Invertir Y para movimiento natural
+                rotationX = -(currentY * 0.5); 
 
-                // Limitar rotación X para que no de vueltas locas verticales
-                if(rotationX > 45) rotationX = 45;
-                if(rotationX < -45) rotationX = -45;
+                if(rotationX > 90) rotationX = 90;
+                if(rotationX < -90) rotationX = -90;
 
                 updateTransform();
             };
@@ -893,45 +1336,42 @@
             const endDrag = () => {
                 isDragging = false;
                 scene.style.cursor = 'grab';
-                // Efecto de inercia o mantener posición. Aquí mantenemos posición para inspección.
             };
             
             const updateTransform = () => {
                 cardObject.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
                 
-                // Mover glare dinámicamente basado en la rotación
-                // Normalizamos rotación para mover el gradiente
                 const gX = 50 + (rotationY % 360) / 3;
                 const gY = 50 - (rotationX) / 2;
                 if(glare) {
                     glare.style.background = `radial-gradient(circle at ${gX}% ${gY}%, rgba(255,255,255,0.4), transparent 50%)`;
-                    glare.style.opacity = Math.max(0, 0.5 - (Math.abs(rotationY%180)/180)); // Brilla más de frente
+                    let normalizedY = Math.abs(rotationY % 360);
+                    if (normalizedY > 90 && normalizedY < 270) {
+                         glare.style.opacity = 0; 
+                    } else {
+                         glare.style.opacity = Math.max(0, 0.5 - (Math.abs(rotationY%180)/180));
+                    }
                 }
             };
 
-            // Resetear con doble click/tap
             const resetRotation = () => {
                 currentX = 0; currentY = 0;
                 rotationX = 0; rotationY = 0;
                 cardObject.style.transition = 'transform 0.5s ease-out';
                 updateTransform();
-                setTimeout(() => { cardObject.style.transition = 'transform 0.1s'; }, 500); // Quitar transición para drag fluido
+                setTimeout(() => { cardObject.style.transition = 'transform 0.1s'; }, 500); 
             };
 
-            // Listeners Mouse
             scene.addEventListener('mousedown', startDrag);
-            window.addEventListener('mousemove', drag); // Window para no perder drag si sales del div
+            window.addEventListener('mousemove', drag); 
             window.addEventListener('mouseup', endDrag);
             scene.addEventListener('dblclick', resetRotation);
 
-            // Listeners Touch
             scene.addEventListener('touchstart', startDrag, {passive: false});
             window.addEventListener('touchmove', drag, {passive: false});
             window.addEventListener('touchend', endDrag);
             
-            // Inicializar
             updateTransform();
-
         })();
 
         // --- ANIMACIÓN DE FONDO ---
