@@ -16,7 +16,7 @@
             --bg-color: #0a0a0a;
             --glass: rgba(0, 20, 0, 0.95);
             --border: 1px solid #00ff00;
-            --paper: #e8e4d9; /* Papel más envejecido */
+            --paper: #e8e4d9; 
             --ink: #1a1a1a;
         }
 
@@ -28,13 +28,12 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            perspective: 1000px; /* Para efectos 3D */
         }
 
         /* --- FONDO RED NEURONAL --- */
         #neural-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.2; pointer-events: none; }
 
-        /* --- EFECTO CRT (Scanlines + Vignette) --- */
+        /* --- EFECTO CRT --- */
         .crt::before {
             content: " "; display: block; position: absolute; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
@@ -74,220 +73,124 @@
         .btn-action:hover { background: var(--primary); color: black; box-shadow: 0 0 20px var(--primary); }
         .btn-action:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(1); }
 
-        /* --- CREDENCIAL GHOST ID (REALISMO PULIDO + EFECTOS 3D) --- */
-        .id-card-container {
-            perspective: 1200px; /* Perspectiva ajustada para mejor profundidad */
-            width: 100%; max-width: 600px; margin: 0 auto;
-            transform-style: preserve-3d;
-            cursor: grab; /* Cursor de agarre */
+        /* --- MOTOR 3D PURO --- */
+        .scene-3d {
+            width: 100%; max-width: 600px; height: 380px; /* Altura fija para mantener proporción tarjeta */
+            margin: 20px auto;
+            perspective: 1500px;
+            cursor: grab;
         }
-        .id-card-container:active {
-            cursor: grabbing;
+        .scene-3d:active { cursor: grabbing; }
+
+        /* Envoltorio que rota */
+        .card-object {
+            width: 100%; height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.1s; /* Movimiento fluido sin lag */
         }
 
-        .id-card {
-            display: grid; 
-            grid-template-columns: 140px 1fr; /* Ancho fijo para la sidebar */
-            gap: 0; 
-            width: 100%;
-            border-radius: 12px; 
-            /* Fondo Guilloché más complejo y oscuro */
+        /* Caras comunes */
+        .card-face {
+            position: absolute; width: 100%; height: 100%;
+            backface-visibility: hidden; /* Oculta la cara trasera cuando está dada vuelta */
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 0 1px rgba(255,255,255,0.1);
             background-color: #080808;
+            /* Textura base compartida */
             background-image: 
                 radial-gradient(circle at 50% 50%, rgba(0, 50, 0, 0.1) 0%, transparent 60%),
-                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 5px),
-                repeating-linear-gradient(-45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 5px);
+                repeating-linear-gradient(45deg, rgba(255,255,255,0.03) 0px, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 5px);
             border: 1px solid #444;
-            border-bottom: 2px solid #222; 
-            position: relative; overflow: hidden;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 0 0 2px rgba(255,255,255,0.05);
-            font-family: 'Rajdhani', sans-serif;
-            color: #e0e0e0;
-            
-            /* Preparación para 3D JS */
-            transform-style: preserve-3d;
-            transform: rotateX(0deg) rotateY(0deg);
-            /* Transición inicial, JS la gestionará después */
-            transition: transform 0.1s ease-out; 
-        }
-        
-        @media (max-width: 600px) {
-            .id-card { grid-template-columns: 1fr; text-align: center; }
-            .id-sidebar { 
-                flex-direction: row; 
-                width: 100%; 
-                border-right: none; 
-                border-bottom: 1px solid #333; 
-                padding: 10px;
-                justify-content: center;
-                gap: 15px;
-                flex-wrap: wrap;
-            } 
-            .vertical-text { display: none; } 
         }
 
-        /* Holograma UV Reactivo Mejorado */
-        .id-card::after {
+        /* --- CARA DELANTERA (FRONT) --- */
+        .card-face.front {
+            display: grid; grid-template-columns: 140px 1fr; gap: 0;
+            font-family: 'Rajdhani', sans-serif; color: #e0e0e0;
+        }
+        
+        /* Holograma Frontal */
+        .card-face.front::after {
             content: ""; position: absolute; inset: -50%;
             background: linear-gradient(135deg, transparent 40%, rgba(0, 255, 136, 0.2) 45%, rgba(0, 119, 255, 0.2) 50%, rgba(0, 255, 136, 0.2) 55%, transparent 60%);
             mix-blend-mode: color-dodge;
-            /* La animación automática se reemplaza parcialmente por el movimiento del mouse, pero dejamos esta de fondo */
             animation: holo-shift 8s linear infinite;
-            pointer-events: none; z-index: 50; opacity: 0.7;
-            transform: translateZ(1px);
-        }
-        @keyframes holo-shift { 0% { transform: translateY(-30%) rotate(20deg); } 100% { transform: translateY(30%) rotate(20deg); } }
-
-        /* Reflejo de luz dinámico (Glare) */
-        .glare {
-            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
-            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.3), transparent 60%);
-            opacity: 0; mix-blend-mode: overlay; pointer-events: none; z-index: 60;
-            transition: opacity 0.2s;
+            pointer-events: none; z-index: 50; opacity: 0.6;
         }
 
-        /* Microtexto de seguridad de fondo */
-        .security-pattern {
-            position: absolute; inset: 0; 
-            background-image: url('data:image/svg+xml;utf8,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><text x="30" y="30" font-size="4" fill="%23ffffff" opacity="0.05" font-family="monospace" text-anchor="middle" dominant-baseline="middle" transform="rotate(-30 30 30)">LEVIATHAM OFFICIAL</text></svg>');
-            z-index: 0; pointer-events: none;
-        }
-
-        .id-header {
-            grid-column: 1 / -1;
-            display: flex; justify-content: space-between; align-items: flex-end;
-            border-bottom: 2px solid var(--primary);
-            padding: 15px 20px 10px; /* Ajuste padding */
-            position: relative; z-index: 2;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
-            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
-            transform: translateZ(20px); /* Efecto de profundidad */
+        /* --- CARA TRASERA (BACK - NUEVO DISEÑO) --- */
+        .card-face.back {
+            transform: rotateY(180deg); /* Empieza dada vuelta */
+            display: flex; flex-direction: column;
+            background-color: #0a0a0a;
+            font-family: 'Share Tech Mono', monospace;
         }
         
+        .magnetic-stripe {
+            height: 50px; width: 100%; background: #111;
+            margin-top: 30px;
+            background-image: repeating-linear-gradient(90deg, #000 0px, #000 2px, #111 2px, #111 4px);
+        }
+
+        .back-content { padding: 20px; display: flex; flex-direction: column; gap: 10px; flex-grow: 1; }
+
+        .signature-panel {
+            background: #fff; height: 40px; width: 80%;
+            margin-bottom: 10px;
+            display: flex; align-items: center; justify-content: center;
+            position: relative;
+            background-image: url('data:image/svg+xml;utf8,<svg width="100" height="40" viewBox="0 0 100 40" xmlns="http://www.w3.org/2000/svg"><text x="50%" y="50%" font-size="10" fill="%23eee" dominant-baseline="middle" text-anchor="middle">AUTHORIZED SIGNATURE</text></svg>');
+        }
+        .real-signature {
+            font-family: 'Mrs Saint Delafield', cursive; font-size: 28px; color: #000;
+            transform: rotate(-2deg);
+        }
+
+        .legal-text { font-size: 8px; color: #666; line-height: 1.2; text-align: justify; }
+        
+        .back-footer { margin-top: auto; display: flex; justify-content: space-between; align-items: flex-end; }
+        .barcode-box { font-family: 'Libre Barcode 39 Text'; font-size: 32px; color: #888; }
+
+        /* --- Estilos internos de la tarjeta (Front) --- */
+        @media (max-width: 600px) {
+            .scene-3d { height: 500px; } /* Más alto en móvil para apilar */
+            .card-face.front { grid-template-columns: 1fr; text-align: center; }
+            .id-sidebar { flex-direction: row; width: 100%; border-right: none; border-bottom: 1px solid #333; padding: 10px; justify-content: center; gap: 15px; flex-wrap: wrap; } 
+            .vertical-text { display: none; } 
+        }
+
+        .security-pattern { position: absolute; inset: 0; background-image: url('data:image/svg+xml;utf8,<svg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"><text x="30" y="30" font-size="4" fill="%23ffffff" opacity="0.05" font-family="monospace" text-anchor="middle" dominant-baseline="middle" transform="rotate(-30 30 30)">LEVIATHAM OFFICIAL</text></svg>'); z-index: 0; pointer-events: none; }
+        .id-header { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--primary); padding: 15px 20px 10px; position: relative; z-index: 2; text-shadow: 0 2px 4px rgba(0,0,0,0.8); background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent); }
         .id-header-text h2 { font-size: 20px; font-weight: 900; letter-spacing: 3px; color: #fff; text-transform: uppercase; }
         .id-header-text span { font-size: 10px; color: var(--primary); letter-spacing: 3px; font-weight: bold; }
-
-        /* --- SIDEBAR CORREGIDA Y PERSONALIZADA --- */
-        .id-sidebar {
-            display: flex; 
-            flex-direction: column; 
-            align-items: center;
-            justify-content: flex-start;
-            position: relative; 
-            z-index: 2;
-            background: rgba(0, 20, 0, 0.3); 
-            border-right: 1px solid rgba(255,255,255,0.1); 
-            padding: 15px 0;
-            flex-shrink: 0; 
-            overflow: hidden; 
-            transform: translateZ(15px);
-        }
-
-        .vertical-text {
-            writing-mode: vertical-rl;
-            text-orientation: mixed;
-            transform: rotate(180deg);
-            font-size: 8px;
-            color: #444;
-            letter-spacing: 2px;
-            margin-top: 10px;
-            font-family: 'Share Tech Mono';
-            border-left: 1px solid #333;
-            padding-left: 4px;
-            height: 100%;
-            max-height: 40px;
-        }
-
-        .id-photo-frame {
-            width: 100px; height: 130px; 
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 8px;
-            padding: 3px; 
-            position: relative; 
-            background: #000;
-            overflow: hidden;
-            box-shadow: inset 0 0 15px rgba(0,0,0,1);
-            margin-bottom: 10px;
-            flex-shrink: 0; 
-            transform: translateZ(10px);
-        }
-        .id-photo-frame img { 
-            width: 100%; height: 100%; object-fit: cover; border-radius: 6px; 
-            filter: grayscale(100%) contrast(1.3) brightness(0.9);
-            position: relative; z-index: 2;
-        }
         
-        /* QR Code en Sidebar */
-        .qr-frame {
-            background: white;
-            padding: 2px;
-            border-radius: 4px;
-            margin-top: auto;
-            margin-bottom: 5px;
-            width: 60px;
-            height: 60px;
-            flex-shrink: 0;
-            transform: translateZ(5px);
-        }
-        .qr-frame img {
-            width: 100%;
-            height: 100%;
-        }
-        
-        /* Foto fantasma integrada */
-        .ghost-photo {
-            position: absolute;
-            right: -20px; bottom: 40px;
-            width: 120px; height: 150px;
-            opacity: 0.15;
-            filter: grayscale(100%) invert(1);
-            mix-blend-mode: overlay;
-            z-index: 1; pointer-events: none;
-            transform: rotate(-5deg) translateZ(2px);
-            mask-image: radial-gradient(circle, black 30%, transparent 70%);
-            -webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%);
-        }
-
-        .chip {
-            width: 42px; height: 32px; 
-            background: linear-gradient(135deg, #a67c00 0%, #ffd700 50%, #a67c00 100%);
-            border-radius: 6px; margin-bottom: 15px; 
-            box-shadow: 0 3px 5px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.4);
-            position: relative; overflow: hidden;
-            border: 1px solid #8b6508;
-            flex-shrink: 0;
-            transform: translateZ(25px); /* El chip sobresale más */
-        }
-        .chip::before { 
-            content: ""; position: absolute; inset: 0;
-            background-image: 
-                linear-gradient(90deg, transparent 48%, rgba(0,0,0,0.5) 50%, transparent 52%),
-                linear-gradient(0deg, transparent 48%, rgba(0,0,0,0.5) 50%, transparent 52%);
-            background-size: 14px 100%, 100% 16px;
-        }
-
-        .id-main { 
-            position: relative; z-index: 2; 
-            display: flex; flex-direction: column; gap: 8px; 
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
-            padding: 0 20px 20px 10px; 
-            transform: translateZ(10px);
-        }
-        
+        .id-sidebar { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; position: relative; z-index: 2; background: rgba(0, 20, 0, 0.3); border-right: 1px solid rgba(255,255,255,0.1); padding: 15px 0; flex-shrink: 0; overflow: hidden; }
+        .vertical-text { writing-mode: vertical-rl; text-orientation: mixed; transform: rotate(180deg); font-size: 8px; color: #444; letter-spacing: 2px; margin-top: 10px; font-family: 'Share Tech Mono'; border-left: 1px solid #333; padding-left: 4px; height: 100%; max-height: 40px; }
+        .id-photo-frame { width: 100px; height: 130px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; padding: 3px; position: relative; background: #000; overflow: hidden; box-shadow: inset 0 0 15px rgba(0,0,0,1); margin-bottom: 10px; flex-shrink: 0; }
+        .id-photo-frame img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; filter: grayscale(100%) contrast(1.3) brightness(0.9); position: relative; z-index: 2; }
+        .qr-frame { background: white; padding: 2px; border-radius: 4px; margin-top: auto; margin-bottom: 5px; width: 60px; height: 60px; flex-shrink: 0; }
+        .qr-frame img { width: 100%; height: 100%; }
+        .ghost-photo { position: absolute; right: -20px; bottom: 40px; width: 120px; height: 150px; opacity: 0.15; filter: grayscale(100%) invert(1); mix-blend-mode: overlay; z-index: 1; pointer-events: none; transform: rotate(-5deg); mask-image: radial-gradient(circle, black 30%, transparent 70%); -webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%); }
+        .chip { width: 42px; height: 32px; background: linear-gradient(135deg, #a67c00 0%, #ffd700 50%, #a67c00 100%); border-radius: 6px; margin-bottom: 15px; box-shadow: 0 3px 5px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.4); position: relative; overflow: hidden; border: 1px solid #8b6508; flex-shrink: 0; }
+        .chip::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(90deg, transparent 48%, rgba(0,0,0,0.5) 50%, transparent 52%), linear-gradient(0deg, transparent 48%, rgba(0,0,0,0.5) 50%, transparent 52%); background-size: 14px 100%, 100% 16px; }
+        .id-main { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); padding: 0 20px 20px 10px; }
         .data-row { display: flex; gap: 15px; flex-wrap: wrap; }
         .data-field-v2 { flex-grow: 1; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; }
         .label-v2 { font-size: 7px; color: #aaa; display: block; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 1px; }
         .value-v2 { font-size: 13px; color: #fff; font-weight: 700; text-transform: uppercase; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
         .value-v2.highlight { color: var(--primary); font-size: 15px; font-weight: 800; }
+        .mrz-container { font-family: 'OCR-B', 'Courier New', monospace; font-size: 13px; letter-spacing: 2px; color: #222; background: rgba(255,255,255,0.9); padding: 10px; border-radius: 4px; margin-top: auto; width: 100%; white-space: pre; overflow: hidden; font-weight: bold; text-transform: uppercase; box-shadow: inset 0 0 5px rgba(0,0,0,0.5); border: 1px solid #000; }
         
         .signature-field {
             font-family: 'Mrs Saint Delafield', cursive;
             font-size: 24px;
-            color: rgba(0, 0, 0, 0.7); /* Tinta negra translúcida */
+            color: rgba(0, 0, 0, 0.7); 
             position: absolute;
             bottom: 60px;
             right: 20px;
-            transform: rotate(-5deg) translateZ(15px);
+            transform: rotate(-5deg);
             z-index: 5;
             text-shadow: 0 0 2px rgba(255,255,255,0.5);
             pointer-events: none;
@@ -300,140 +203,36 @@
             text-shadow: 0 0 5px rgba(0,0,0,0.8);
         }
 
-        .mrz-container {
-            font-family: 'OCR-B', 'Courier New', monospace;
-            font-size: 13px; letter-spacing: 2px;
-            color: #222; background: rgba(255,255,255,0.9);
-            padding: 10px; border-radius: 4px;
-            margin-top: auto; width: 100%;
-            white-space: pre; overflow: hidden;
-            font-weight: bold; text-transform: uppercase;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
-            border: 1px solid #000;
-            transform: translateZ(5px);
-        }
+        /* Glare Effect */
+        .glare { position: absolute; width: 100%; height: 100%; top: 0; left: 0; background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.4), transparent 50%); opacity: 0; mix-blend-mode: overlay; pointer-events: none; z-index: 60; }
 
-        /* --- EXPEDIENTE PAPEL (TOTALMENTE REDISEÑADO - REALISTA & CLASIFICADO) --- */
-        .paper-dossier {
-            background-color: var(--paper);
-            color: var(--ink);
-            font-family: 'Special Elite', 'Courier Prime', monospace; /* Fuente mecanografiada desgastada */
-            padding: 60px; margin: 60px auto; max-width: 850px;
-            box-shadow: 
-                0 20px 50px rgba(0,0,0,0.9), 
-                inset 0 0 100px rgba(139, 69, 19, 0.4); /* Bordes quemados/sucios */
-            position: relative; 
-            transform: rotate(-1deg);
-            border: none;
-            /* Textura de papel viejo compleja */
-            background-image: 
-                url("data:image/svg+xml;utf8,<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.6' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.2'/></svg>"),
-                linear-gradient(to bottom right, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.1) 100%);
-            overflow: hidden;
-        }
-
-        /* Marca de Agua Leviathan */
-        .paper-watermark {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg) scale(1.2);
-            font-size: 12rem; color: rgba(0,0,0,0.04); font-family: 'Black Ops One';
-            pointer-events: none; z-index: 0; white-space: nowrap; text-transform: uppercase;
-        }
-
-        /* Sello "TOP SECRET" */
-        .stamp-top-secret {
-            position: absolute; top: 30px; right: 30px;
-            border: 6px double #b00; color: #b00;
-            font-size: 32px; font-weight: bold; font-family: 'Black Ops One', sans-serif;
-            padding: 10px 25px; transform: rotate(-8deg);
-            text-transform: uppercase; mix-blend-mode: multiply; opacity: 0.8;
-            mask-image: url("data:image/svg+xml;utf8,<svg width='300' height='150' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>");
-        }
-        /* Sello "COPIA" */
-        .stamp-copy {
-            position: absolute; bottom: 120px; left: 50px;
-            border: 3px solid #000080; color: #000080;
-            font-size: 18px; font-family: 'Courier Prime'; font-weight: bold;
-            padding: 5px 15px; transform: rotate(5deg);
-            text-transform: uppercase; mix-blend-mode: multiply; opacity: 0.7;
-        }
-
-        /* Cabecera de Formulario Clasificado */
-        .dossier-header-grid {
-            display: grid; grid-template-columns: 1fr 200px;
-            border-bottom: 4px solid #222; padding-bottom: 20px; margin-bottom: 30px;
-            position: relative; z-index: 2;
-        }
+        /* --- EXPEDIENTE PAPEL --- */
+        .paper-dossier { background-color: var(--paper); color: var(--ink); font-family: 'Special Elite', 'Courier Prime', monospace; padding: 60px; margin: 60px auto; max-width: 850px; box-shadow: 0 20px 50px rgba(0,0,0,0.9), inset 0 0 100px rgba(139, 69, 19, 0.4); position: relative; transform: rotate(-1deg); border: none; background-image: url("data:image/svg+xml;utf8,<svg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.6' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.2'/></svg>"), linear-gradient(to bottom right, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0) 50%, rgba(0,0,0,0.1) 100%); overflow: hidden; }
+        .paper-watermark { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg) scale(1.2); font-size: 12rem; color: rgba(0,0,0,0.04); font-family: 'Black Ops One'; pointer-events: none; z-index: 0; white-space: nowrap; text-transform: uppercase; }
+        .stamp-top-secret { position: absolute; top: 30px; right: 30px; border: 6px double #b00; color: #b00; font-size: 32px; font-weight: bold; font-family: 'Black Ops One', sans-serif; padding: 10px 25px; transform: rotate(-8deg); text-transform: uppercase; mix-blend-mode: multiply; opacity: 0.8; mask-image: url("data:image/svg+xml;utf8,<svg width='300' height='150' xmlns='http://www.w3.org/2000/svg'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.6'/></svg>"); }
+        .stamp-copy { position: absolute; bottom: 120px; left: 50px; border: 3px solid #000080; color: #000080; font-size: 18px; font-family: 'Courier Prime'; font-weight: bold; padding: 5px 15px; transform: rotate(5deg); text-transform: uppercase; mix-blend-mode: multiply; opacity: 0.7; }
+        .dossier-header-grid { display: grid; grid-template-columns: 1fr 200px; border-bottom: 4px solid #222; padding-bottom: 20px; margin-bottom: 30px; position: relative; z-index: 2; }
         .dh-title h1 { font-size: 36px; font-weight: 900; text-decoration: underline; margin-bottom: 5px; }
         .dh-meta { font-family: 'Fira Code', monospace; font-size: 11px; color: #444; }
-        .dh-security-box {
-            border: 3px solid #222; text-align: center; padding: 5px;
-            display: flex; flex-direction: column; justify-content: center;
-            background: rgba(0,0,0,0.05);
-        }
+        .dh-security-box { border: 3px solid #222; text-align: center; padding: 5px; display: flex; flex-direction: column; justify-content: center; background: rgba(0,0,0,0.05); }
         .dh-security-label { font-size: 10px; font-weight: bold; display: block; border-bottom: 2px solid #222; }
         .dh-security-level { font-family: 'Black Ops One'; font-size: 24px; color: #b00; line-height: 1.2; }
-
-        /* Cuadrícula de Datos del Formulario */
-        .dossier-grid-form {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 15px; position: relative; z-index: 2;
-            border: 2px solid #333; padding: 15px;
-            background: rgba(255,255,255,0.4);
-        }
+        .dossier-grid-form { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; position: relative; z-index: 2; border: 2px solid #333; padding: 15px; background: rgba(255,255,255,0.4); }
         .form-box { border: 1px solid #555; padding: 8px; position: relative; background: rgba(240, 240, 230, 0.6); }
         .form-box.span-2 { grid-column: span 2; }
         .form-box.span-4 { grid-column: span 4; }
-        .box-label {
-            display: block; font-size: 9px; font-weight: bold; text-transform: uppercase;
-            color: #555; border-bottom: 1px dotted #777; margin-bottom: 5px;
-            font-family: 'Fira Code', monospace;
-        }
-        .box-value {
-            font-family: 'Special Elite', 'Courier New', monospace;
-            font-size: 14px; color: #000; font-weight: 900;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
+        .box-label { display: block; font-size: 9px; font-weight: bold; text-transform: uppercase; color: #555; border-bottom: 1px dotted #777; margin-bottom: 5px; font-family: 'Fira Code', monospace; }
+        .box-value { font-family: 'Special Elite', 'Courier New', monospace; font-size: 14px; color: #000; font-weight: 900; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .box-value.highlight { color: #b00; }
-        
         .box-value.mono-sm { font-family: 'Fira Code', monospace; font-size: 11px; }
-
         .comms-box { background: rgba(0,0,0,0.05); padding: 15px; border-left: 4px solid #b00; font-style: italic; }
-
-        .dossier-footer {
-            text-center: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #333;
-            font-family: 'Fira Code', monospace; font-size: 10px; color: #555; position: relative; z-index: 2;
-        }
+        .dossier-footer { text-center: center; margin-top: 40px; padding-top: 20px; border-top: 2px solid #333; font-family: 'Fira Code', monospace; font-size: 10px; color: #555; position: relative; z-index: 2; }
 
         /* --- TERMINAL LINUX BOOT --- */
-        #hack-terminal {
-            position: fixed; inset: 0; background: #000; z-index: 100;
-            padding: 20px; 
-            font-family: 'Fira Code', 'Courier New', monospace; /* Fuente Real de Terminal */
-            font-size: 14px; 
-            color: #ccc;
-            display: none; flex-direction: column; 
-            line-height: 1.4;
-            cursor: text;
-            overflow: hidden;
-        }
-        
-        .terminal-header {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            margin-bottom: 2rem; border-bottom: 1px solid #333; padding-bottom: 1rem;
-            width: 100%;
-        }
-
-        .linux-ascii { 
-            color: var(--primary); font-size: 10px; line-height: 10px; white-space: pre; 
-            font-weight: bold; text-align: center; margin-bottom: 10px;
-            text-shadow: 0 0 5px rgba(0,255,0,0.5);
-        }
-        
-        .boot-log { 
-            flex-grow: 1; overflow-y: hidden; display: flex; flex-direction: column; justify-content: flex-end; 
-            width: 100%; max-width: 900px; margin: 0 auto;
-        }
-        
+        #hack-terminal { position: fixed; inset: 0; background: #000; z-index: 100; padding: 20px; font-family: 'Fira Code', 'Courier New', monospace; font-size: 14px; color: #ccc; display: none; flex-direction: column; line-height: 1.4; cursor: text; overflow: hidden; }
+        .terminal-header { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2rem; border-bottom: 1px solid #333; padding-bottom: 1rem; width: 100%; }
+        .linux-ascii { color: var(--primary); font-size: 10px; line-height: 10px; white-space: pre; font-weight: bold; text-align: center; margin-bottom: 10px; text-shadow: 0 0 5px rgba(0,255,0,0.5); }
+        .boot-log { flex-grow: 1; overflow-y: hidden; display: flex; flex-direction: column; justify-content: flex-end; width: 100%; max-width: 900px; margin: 0 auto; }
         .log-line { display: flex; align-items: flex-start; margin-bottom: 2px; }
         .log-time { color: #666; margin-right: 15px; min-width: 80px; }
         .log-status { font-weight: bold; margin-right: 10px; min-width: 50px; text-align: center; }
@@ -441,18 +240,12 @@
         .status-fail { color: #ff3333; }
         .status-warn { color: #ffcc00; }
         .log-msg { color: #ddd; white-space: pre-wrap; word-break: break-all; }
-
         .prompt-line { display: flex; align-items: center; color: #fff; margin-top: 10px; }
         .prompt-user { color: #ff3333; font-weight: bold; }
         .prompt-host { color: #fff; }
         .prompt-path { color: #3333ff; font-weight: bold; }
-        .cursor-blink { 
-            display: inline-block; width: 8px; height: 16px; background: #ccc; 
-            animation: blink 1s step-end infinite; margin-left: 5px; 
-        }
+        .cursor-blink { display: inline-block; width: 8px; height: 16px; background: #ccc; animation: blink 1s step-end infinite; margin-left: 5px; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
-
-        /* GLITCH */
         .glitch { font-size: 2.5rem; font-weight: bold; text-transform: uppercase; text-shadow: 2px 2px 0px #f00, -2px -2px 0px #00f; animation: glitch 1s infinite alternate; }
         .glitch-sm { font-size: 1rem; text-shadow: 1px 1px 0px #f00, -1px -1px 0px #00f; animation: glitch 2s infinite alternate-reverse; }
         @keyframes glitch { 0% { text-shadow: 2px 2px 0px #f00; } 100% { text-shadow: -2px -2px 0px #00f; } }
@@ -534,119 +327,144 @@
                 </button>
             </div>
 
-            <!-- TARJETA DE ACCESO MEJORADA (EFECTO 3D) -->
-            <div class="id-card-container">
-                <div class="id-card">
-                    <div class="glare"></div> <!-- Capa de brillo -->
-                    <div class="security-pattern"></div>
-                    <img id="card-ghost-photo" class="ghost-photo" src="" alt="Ghost">
-                    <div id="card-signature" class="signature-field"></div>
-                    
-                    <!-- Cabecera Tarjeta -->
-                    <div class="id-header">
-                        <div class="id-header-text">
-                            <span>ESTADO SOBERANO DE</span>
-                            <h2>LEVIATHAM</h2>
-                        </div>
-                        <i class="fas fa-fingerprint text-3xl text-green-700 opacity-80"></i>
-                    </div>
-                    
-                    <!-- Sidebar (Chip + Foto) -->
-                    <div class="id-sidebar">
-                        <div class="chip"></div>
-                        <div class="id-photo-frame">
-                            <img id="card-photo" src="" alt="Subject">
-                        </div>
-                        <div class="qr-frame">
-                            <img id="card-qr" src="" alt="QR">
-                        </div>
-                        <div class="vertical-text">
-                            SECURE ID // v2.4
-                        </div>
-                    </div>
-
-                    <!-- Main Info -->
-                    <div class="id-main">
-                        <div class="data-row">
-                            <div class="data-field-v2">
-                                <span class="label-v2">SURNAME</span>
-                                <span id="card-surname" class="value-v2 highlight">---</span>
+            <!-- TARJETA DE ACCESO MEJORADA (EFECTO 3D REAL) -->
+            <div class="text-center text-xs text-gray-500 mb-2">ARRASTRA PARA ROTAR LA TARJETA</div>
+            <div class="scene-3d">
+                <div class="card-object">
+                    <!-- CARA DELANTERA -->
+                    <div class="card-face front">
+                        <div class="glare"></div>
+                        <div class="security-pattern"></div>
+                        <img id="card-ghost-photo" class="ghost-photo" src="" alt="Ghost">
+                        <div id="card-signature" class="signature-field"></div>
+                        
+                        <div class="id-header">
+                            <div class="id-header-text">
+                                <span>ESTADO SOBERANO DE</span>
+                                <h2>LEVIATHAM</h2>
                             </div>
-                            <div class="data-field-v2">
-                                <span class="label-v2">GIVEN NAMES</span>
-                                <span id="card-firstname" class="value-v2 highlight">---</span>
-                            </div>
-                        </div>
-
-                        <div class="data-row">
-                            <div class="data-field-v2">
-                                <span class="label-v2">NATIONALITY</span>
-                                <span id="card-nat" class="value-v2">---</span>
-                            </div>
-                            <div class="data-field-v2">
-                                <span class="label-v2">DATE OF BIRTH</span>
-                                <span id="card-dob" class="value-v2">---</span>
-                            </div>
-                            <div class="data-field-v2">
-                                <span class="label-v2">SEX</span>
-                                <span id="card-sex" class="value-v2">---</span>
-                            </div>
+                            <i class="fas fa-fingerprint text-3xl text-green-700 opacity-80"></i>
                         </div>
                         
-                        <!-- NUEVA FILA: DNI, Altura y Ojos -->
-                        <div class="data-row">
-                            <div class="data-field-v2">
-                                <span class="label-v2">DOCUMENT NO.</span>
-                                <span id="card-doc-no" class="value-v2 text-green-400">---</span>
+                        <div class="id-sidebar">
+                            <div class="chip"></div>
+                            <div class="id-photo-frame">
+                                <img id="card-photo" src="" alt="Subject">
                             </div>
-                            <div class="data-field-v2">
-                                <span class="label-v2">HEIGHT</span>
-                                <span id="card-height" class="value-v2">---</span>
+                            <div class="qr-frame">
+                                <img id="card-qr" src="" alt="QR">
                             </div>
-                            <div class="data-field-v2">
-                                <span class="label-v2">EYES</span>
-                                <span id="card-eyes" class="value-v2">---</span>
+                            <div class="vertical-text">
+                                SECURE ID // v2.4
                             </div>
                         </div>
 
-                        <div class="data-row">
-                            <div class="data-field-v2">
-                                <span class="label-v2">DEPARTMENT</span>
-                                <span id="card-dept" class="value-v2 text-green-400">---</span>
+                        <div class="id-main">
+                            <div class="data-row">
+                                <div class="data-field-v2">
+                                    <span class="label-v2">SURNAME</span>
+                                    <span id="card-surname" class="value-v2 highlight">---</span>
+                                </div>
+                                <div class="data-field-v2">
+                                    <span class="label-v2">GIVEN NAMES</span>
+                                    <span id="card-firstname" class="value-v2 highlight">---</span>
+                                </div>
                             </div>
-                            <div class="data-field-v2">
-                                <span class="label-v2">BLOOD TYPE</span>
-                                <span id="card-blood" class="value-v2 text-red-500">---</span>
-                            </div>
-                            <div class="data-field-v2">
-                                <span class="label-v2">ISSUED / EXPIRES</span>
-                                <span class="value-v2" id="card-dates">--- / PERM</span>
-                            </div>
-                        </div>
 
-                        <div class="data-row">
-                            <div class="data-field-v2" style="border:none;">
-                                <span class="label-v2">UUID / CONTROL NUMBER</span>
-                                <span id="card-uuid" class="value-v2 text-[10px] tracking-tight">---</span>
+                            <div class="data-row">
+                                <div class="data-field-v2">
+                                    <span class="label-v2">NATIONALITY</span>
+                                    <span id="card-nat" class="value-v2">---</span>
+                                </div>
+                                <div class="data-field-v2">
+                                    <span class="label-v2">DATE OF BIRTH</span>
+                                    <span id="card-dob" class="value-v2">---</span>
+                                </div>
+                                <div class="data-field-v2">
+                                    <span class="label-v2">SEX</span>
+                                    <span id="card-sex" class="value-v2">---</span>
+                                </div>
+                            </div>
+                            
+                            <div class="data-row">
+                                <div class="data-field-v2">
+                                    <span class="label-v2">DOCUMENT NO.</span>
+                                    <span id="card-doc-no" class="value-v2 text-green-400">---</span>
+                                </div>
+                                <div class="data-field-v2">
+                                    <span class="label-v2">HEIGHT</span>
+                                    <span id="card-height" class="value-v2">---</span>
+                                </div>
+                                <div class="data-field-v2">
+                                    <span class="label-v2">EYES</span>
+                                    <span id="card-eyes" class="value-v2">---</span>
+                                </div>
+                            </div>
+
+                            <div class="data-row">
+                                <div class="data-field-v2">
+                                    <span class="label-v2">DEPARTMENT</span>
+                                    <span id="card-dept" class="value-v2 text-green-400">---</span>
+                                </div>
+                                <div class="data-field-v2">
+                                    <span class="label-v2">BLOOD TYPE</span>
+                                    <span id="card-blood" class="value-v2 text-red-500">---</span>
+                                </div>
+                                <div class="data-field-v2">
+                                    <span class="label-v2">ISSUED / EXPIRES</span>
+                                    <span class="value-v2" id="card-dates">--- / PERM</span>
+                                </div>
+                            </div>
+
+                            <div class="data-row">
+                                <div class="data-field-v2" style="border:none;">
+                                    <span class="label-v2">UUID / CONTROL NUMBER</span>
+                                    <span id="card-uuid" class="value-v2 text-[10px] tracking-tight">---</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mrz-container" id="card-mrz">
+                                P&lt;LVTUNKNOWN&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
+                                0000000000XXX0000000M0000
                             </div>
                         </div>
-                        
-                        <div class="mrz-container" id="card-mrz">
-                            P&lt;LVTUNKNOWN&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;
-                            0000000000XXX0000000M0000
+                    </div>
+
+                    <!-- CARA TRASERA -->
+                    <div class="card-face back">
+                        <div class="magnetic-stripe"></div>
+                        <div class="back-content">
+                            <div class="legal-text">
+                                This card is the property of LEVIATHAM SECURITY OPERATIONS. 
+                                It must be returned upon demand. If found, return to nearest secure node.
+                                Unauthorized possession of this identification is a federal offense under Section 894-B.
+                            </div>
+                            <div class="signature-panel">
+                                <span id="card-signature-back" class="real-signature">Signature</span>
+                            </div>
+                            <div class="legal-text">
+                                <strong>RESTRICTION CODES:</strong> ALPHA // OMEGA // ZULU<br>
+                                <strong>CLEARANCE:</strong> LEVEL 5 (UNRESTRICTED)<br>
+                                <strong>ISSUING POST:</strong> BUENOS AIRES HQ
+                            </div>
+                            <div class="back-footer">
+                                <div class="text-[10px] text-gray-500">
+                                    SERVICE: +00 123 456 789<br>
+                                    NODE: #KALI-01
+                                </div>
+                                <div class="barcode-box">*849201*</div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- EXPEDIENTE FÍSICO (TOTALMENTE REDISEÑADO) -->
+            <!-- EXPEDIENTE FÍSICO -->
             <div class="paper-dossier">
-                <!-- Marcas de Agua y Sellos -->
                 <div class="paper-watermark">LEVIATHAM</div>
                 <div class="stamp-top-secret">TOP SECRET<br>EYES ONLY</div>
                 <div class="stamp-copy">COPY 01 OF 01</div>
                 
-                <!-- Cabecera del Formulario -->
                 <div class="dossier-header-grid">
                     <div class="dh-title">
                         <h1>INTELLIGENCE DOSSIER</h1>
@@ -661,9 +479,7 @@
                     </div>
                 </div>
 
-                <!-- Cuadrícula del Formulario -->
                 <div class="dossier-grid-form mb-6">
-                    <!-- SECCIÓN IDENTIFICACIÓN -->
                     <div class="form-box span-4" style="background: #222; color: #fff;">
                         <span class="box-label" style="color: #aaa; border-color: #555;">SECTION I: PRIMARY IDENTIFICATION</span>
                     </div>
@@ -679,18 +495,15 @@
                         <span class="box-label">BLOOD TYPE</span>
                         <span class="box-value highlight" id="doc-blood">---</span>
                     </div>
-                    <!-- NUEVO CAMPO: Safe House -->
                     <div class="form-box span-4">
                         <span class="box-label">KNOWN SAFE HOUSE / LOCATION</span>
                         <span class="box-value mono-sm" id="doc-address">---</span>
                     </div>
-                    <!-- NUEVO CAMPO: Front Company -->
                     <div class="form-box span-4">
                         <span class="box-label">COVERT FRONT COMPANY</span>
                         <span class="box-value" id="doc-company">---</span>
                     </div>
 
-                    <!-- SECCIÓN FINANCIERA (REORGANIZADA SEGÚN PEDIDO) -->
                     <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
                         <span class="box-label" style="color: #aaa; border-color: #555;">SECTION II: FINANCIAL INTELLIGENCE</span>
                     </div>
@@ -711,7 +524,6 @@
                         <span class="box-value" id="doc-swift">---</span>
                     </div>
 
-                    <!-- SECCIÓN HUELLA DIGITAL (REORGANIZADA SEGÚN PEDIDO) -->
                     <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
                         <span class="box-label" style="color: #aaa; border-color: #555;">SECTION III: DIGITAL FOOTPRINT</span>
                     </div>
@@ -732,7 +544,6 @@
                         <span class="box-value mono-sm" id="doc-pass">---</span>
                     </div>
 
-                    <!-- SECCIÓN CRIPTO (REORGANIZADA SEGÚN PEDIDO) -->
                     <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
                         <span class="box-label" style="color: #aaa; border-color: #555;">SECTION IV: CRYPTO ASSETS</span>
                     </div>
@@ -744,13 +555,11 @@
                         <span class="box-label">EST. BALANCE</span>
                         <span class="box-value highlight" id="doc-balance">---</span>
                     </div>
-                    <!-- NUEVO CAMPO: Altcoin -->
                     <div class="form-box span-4">
                         <span class="box-label">SECONDARY CRYPTO ASSET (LAUNDERED)</span>
                         <span class="box-value mono-sm" id="doc-altcoin">---</span>
                     </div>
                     
-                    <!-- NUEVA SECCION V: TECH FINGERPRINT (SOLICITADA) -->
                     <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
                         <span class="box-label" style="color: #aaa; border-color: #555;">SECTION V: ASSETS & TECH FINGERPRINT</span>
                     </div>
@@ -767,7 +576,6 @@
                         <span class="box-value mono-sm" style="font-size: 10px;" id="doc-ua">---</span>
                     </div>
                     
-                    <!-- NUEVA SECCION VI: MISSION DETAILS (NUEVAS APIS) -->
                     <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
                         <span class="box-label" style="color: #aaa; border-color: #555;">SECTION VI: MISSION STATUS</span>
                     </div>
@@ -815,13 +623,8 @@
     </div>
 
     <script>
-        // --- GENERADORES LOCALES (FALLBACKS OBLIGATORIOS) ---
-        // Estos aseguran que NUNCA quede un campo vacío si la API falla.
-        
-        function genCC() {
-            let num = "4"; for(let i=0; i<15; i++) num += Math.floor(Math.random()*10);
-            return num.match(/.{1,4}/g).join(" ");
-        }
+        // --- GENERADORES LOCALES ---
+        function genCC() { let num = "4"; for(let i=0; i<15; i++) num += Math.floor(Math.random()*10); return num.match(/.{1,4}/g).join(" "); }
         function genExp() { return `202${Math.floor(Math.random()*5)+5}-${Math.floor(Math.random()*12)+1}`; }
         function genCVV() { return Math.floor(Math.random() * (999 - 100) + 100); }
         function genIBAN(country) { return `${country.toUpperCase()}89 ${Math.floor(Math.random()*1000)} ${Math.floor(Math.random()*1000)} ${Math.floor(Math.random()*1000)}`.replace(/ /g, ''); }
@@ -839,8 +642,6 @@
         function genDept() { return "FIELD OPS"; }
         function genBeer() { return "PROJECT CHAOS"; }
         function genAppliance() { return "TACTICAL SCANNER"; }
-        
-        // Nueva Lógica de DNI basada en edad (Aproximación Argentina 2024)
         function genDNI(age) {
             let base, range;
             if (age < 20) { base = 50000000; range = 10000000; }
@@ -850,10 +651,8 @@
             else if (age < 60) { base = 16000000; range = 7000000; }
             else if (age < 70) { base = 10000000; range = 6000000; }
             else { base = 1000000; range = 9000000; }
-            
             return Math.floor(base + Math.random() * range);
         }
-
         function genHeight() { return (Math.random() * (2.00 - 1.55) + 1.55).toFixed(2); }
         function genEyes() { const e = ['BROWN', 'BLUE', 'GREEN', 'HAZEL', 'GRAY']; return e[Math.floor(Math.random() * e.length)]; }
         function genCompany() { const c = ['OMEGA SOLUTIONS', 'GLOBAL DYNAMICS', 'MASSIVE DYNAMIC', 'CYBERDYNE SYSTEMS', 'ACME CORP']; return c[Math.floor(Math.random() * c.length)]; }
@@ -861,20 +660,18 @@
 
         let ghostData = {};
 
-        // --- SECUENCIA DE INICIO (TERMINAL DE CARGA LINUX) ---
+        // --- SECUENCIA DE INICIO ---
         function startSequence() {
             const terminal = document.getElementById('hack-terminal');
             const logOutput = document.getElementById('boot-log');
             
             terminal.style.display = 'flex';
             document.getElementById('config-panel').style.display = 'none';
-            document.getElementById('results-container').classList.add('hidden'); // Reset visibility
+            document.getElementById('results-container').classList.add('hidden'); 
             logOutput.innerHTML = '';
             
-            // Iniciar fetching en background
             fetchData();
 
-            // Mensajes estilo Linux Boot / Systemd
             const bootMsgs = [
                 { msg: "Loading Linux 5.15.0-kali3-amd64...", status: "" },
                 { msg: "Loading initial ramdisk...", status: "" },
@@ -917,18 +714,14 @@
                     else if (item.status === 'FAIL') statusHtml = '<span class="log-status status-fail">[ FAIL ]</span>';
                     else if (item.status === 'WARN') statusHtml = '<span class="log-status status-warn">[ WARN ]</span>';
                     else if (item.status === '...') statusHtml = '<span class="log-status">[ INFO ]</span>';
-                    else statusHtml = '<span class="log-status">        </span>'; // Padding
+                    else statusHtml = '<span class="log-status">        </span>';
 
                     const time = (Math.random() * 10).toFixed(6);
                     logOutput.innerHTML += `<div class="log-line"><span class="log-time">[    ${time}]</span>${statusHtml}<span class="log-msg">${item.msg}</span></div>`;
-                    
-                    // Auto-scroll logic (keep bottom in view)
                     window.scrollTo(0, document.body.scrollHeight);
-                    
                     cmdIndex++;
                 } else {
                     clearInterval(logInterval);
-                    // Prompt final
                     logOutput.innerHTML += `
                         <div class="prompt-line">
                             <span class="prompt-user">root@leviatham</span><span class="prompt-host">:~#</span>&nbsp;./launch_gui.sh<span class="cursor-blink"></span>
@@ -939,327 +732,205 @@
                         renderResults();
                     }, 1500);
                 }
-            }, 200); // Velocidad de boot
+            }, 200);
         }
 
-        // --- FUNCION RESET (VOLVER A INICIO) ---
         function resetApp() {
             document.getElementById('results-container').classList.add('hidden');
             document.getElementById('config-panel').style.display = 'block';
             window.scrollTo(0, 0);
         }
 
-        // --- EXTRACCIÓN DE DATOS HÍBRIDA ---
         async function fetchData() {
             const gender = document.getElementById('gender').value;
             const region = document.getElementById('region').value;
 
-            // 1. RANDOM USER (Principal - Foto e info base)
             try {
                 const res = await fetch(`https://randomuser.me/api/?results=1&gender=${gender}&nat=${region}`);
                 const data = await res.json();
                 ghostData.user = data.results[0];
             } catch (e) {
-                console.error("User API failed");
-                // Fallback de emergencia
-                ghostData.user = {
-                    name: { first: "John", last: "Doe" },
-                    location: { country: "Unknown", city: "Unknown" },
-                    dob: { date: "1990-01-01", age: 30 },
-                    login: { uuid: "unknown-uuid", username: "ghost", password: "123" },
-                    picture: { large: "https://robohash.org/fallback" },
-                    nat: "US", gender: "male"
-                };
+                ghostData.user = { name: { first: "John", last: "Doe" }, location: { country: "Unknown", city: "Unknown" }, dob: { date: "1990-01-01", age: 30 }, login: { uuid: "unknown-uuid", username: "ghost", password: "123" }, picture: { large: "https://robohash.org/fallback" }, nat: "US", gender: "male" };
             }
 
-            // 2. OTROS DATOS (Generación Local Garantizada + Intentos de API)
-            ghostData.finance = {
-                cc: genCC(),
-                exp: genExp(),
-                cvv: genCVV(),
-                iban: genIBAN(region),
-                swift: genSwift()
-            };
+            ghostData.finance = { cc: genCC(), exp: genExp(), cvv: genCVV(), iban: genIBAN(region), swift: genSwift() };
+            ghostData.net = { ip: genIP(), mac: genMAC() };
 
-            ghostData.net = {
-                ip: genIP(),
-                mac: genMAC()
-            };
+            try { const res = await fetch('https://api.adviceslip.com/advice'); const data = await res.json(); ghostData.quote = data.slip.advice; } catch(e) { ghostData.quote = "System failure. Proceed with caution."; }
+            try { const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'); const data = await res.json(); ghostData.btcPrice = data.bitcoin.usd; } catch(e) { ghostData.btcPrice = 60000; }
+            try { const res = await fetch('https://random-data-api.com/api/v2/blood_types'); const data = await res.json(); ghostData.blood = data.group; } catch(e) { ghostData.blood = genBlood(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/banks'); const data = await res.json(); ghostData.bankName = data.bank_name; } catch(e) { ghostData.bankName = genBank(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/vehicles'); const data = await res.json(); ghostData.vehicle = `${data.make_and_model} (${data.color})`; ghostData.vin = data.vin; } catch(e) { ghostData.vehicle = genVehicle(); ghostData.vin = genVin(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/user_agents'); const data = await res.json(); ghostData.ua = data.user_agent; } catch(e) { ghostData.ua = genUA(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/addresses'); const data = await res.json(); ghostData.address = `${data.street_address}, ${data.city_name}, ${data.country}`; } catch(e) { ghostData.address = genAddress(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/commerce'); const data = await res.json(); ghostData.dept = data.department; } catch(e) { ghostData.dept = genDept(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/beers'); const data = await res.json(); ghostData.opName = data.name; } catch(e) { ghostData.opName = genBeer(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/appliances'); const data = await res.json(); ghostData.equipment = data.equipment; } catch(e) { ghostData.equipment = genAppliance(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/company'); const data = await res.json(); ghostData.company = data.business_name; } catch(e) { ghostData.company = genCompany(); }
+            try { const res = await fetch('https://random-data-api.com/api/v2/crypto_coin'); const data = await res.json(); ghostData.altcoin = `${data.coin_name} (${data.symbol})`; } catch(e) { const c = genCrypto(); ghostData.altcoin = `${c.coin_name} (${c.symbol})`; }
+        }
 
-            // Intentar API de Frases (Advice)
-            try {
-                const res = await fetch('https://api.adviceslip.com/advice');
-                const data = await res.json();
-                ghostData.quote = data.slip.advice;
-            } catch(e) {
-                ghostData.quote = "System failure. Proceed with caution.";
-            }
-
-            // Intentar Precio BTC
-            try {
-                const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd');
-                const data = await res.json();
-                ghostData.btcPrice = data.bitcoin.usd;
-            } catch(e) {
-                ghostData.btcPrice = 60000;
-            }
-
-            // NUEVA API: Random Data API (Blood Type) - GRUPO SANGUÍNEO
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/blood_types');
-                const data = await res.json();
-                ghostData.blood = data.group; // Retorna ej: "A+"
-            } catch(e) {
-                ghostData.blood = genBlood(); // Fallback local
-            }
-
-            // NUEVA API: Random Data API (Banks) - NOMBRE DE BANCO
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/banks');
-                const data = await res.json();
-                ghostData.bankName = data.bank_name;
-            } catch(e) {
-                ghostData.bankName = genBank(); // Fallback local
-            }
-
-            // NUEVA API: Random Data API (Vehicles) - VEHÍCULO
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/vehicles');
-                const data = await res.json();
-                ghostData.vehicle = `${data.make_and_model} (${data.color})`;
-                ghostData.vin = data.vin;
-            } catch(e) {
-                ghostData.vehicle = genVehicle(); 
-                ghostData.vin = genVin();
-            }
-
-            // NUEVA API: Random Data API (User Agents) - USER AGENT
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/user_agents');
-                const data = await res.json();
-                ghostData.ua = data.user_agent;
-            } catch(e) {
-                ghostData.ua = genUA();
-            }
-
-            // NUEVA API: Random Data API (Addresses) - DIRECCION SEGURA
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/addresses');
-                const data = await res.json();
-                ghostData.address = `${data.street_address}, ${data.city_name}, ${data.country}`;
-            } catch(e) {
-                ghostData.address = genAddress();
-            }
-
-            // NUEVA API: Random Data API (Commerce) - DEPARTAMENTO
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/commerce');
-                const data = await res.json();
-                ghostData.dept = data.department;
-            } catch(e) {
-                ghostData.dept = genDept();
-            }
-
-            // NUEVA API: Random Data API (Beers) - OPERACION
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/beers');
-                const data = await res.json();
-                ghostData.opName = data.name;
-            } catch(e) {
-                ghostData.opName = genBeer();
-            }
-
-            // NUEVA API: Random Data API (Appliances) - EQUIPAMIENTO
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/appliances');
-                const data = await res.json();
-                ghostData.equipment = data.equipment;
-            } catch(e) {
-                ghostData.equipment = genAppliance();
-            }
-
-            // NUEVA API: Random Data API (Users) - BIOMETRIA REALISTA
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/users');
-                const data = await res.json();
-                // Si la API responde, usamos sus datos para altura y ojos si disponibles, si no, fallback
-            } catch(e) {
-                // Fallback silencioso
-            }
-
-            // NUEVA API: Random Data API (Company) - EMPRESA FANTASMA
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/company');
-                const data = await res.json();
-                ghostData.company = data.business_name;
-            } catch(e) {
-                ghostData.company = genCompany();
-            }
-
-            // NUEVA API: Random Data API (Crypto) - ALTCOIN
-            try {
-                const res = await fetch('https://random-data-api.com/api/v2/crypto_coin');
-                const data = await res.json();
-                ghostData.altcoin = `${data.coin_name} (${data.symbol})`;
-            } catch(e) {
-                const c = genCrypto();
-                ghostData.altcoin = `${c.coin_name} (${c.symbol})`;
-            }
+        // --- SAFE SETTER ---
+        function setVal(id, val) {
+            const el = document.getElementById(id);
+            if (el) el.innerText = val;
+            // else console.warn("Elemento no encontrado:", id); // Silenced for production feel
         }
 
         function renderResults() {
             const u = ghostData.user;
-            const age = u.dob.age; // Obtener edad real del usuario
+            const age = u.dob.age;
             
-            // --- RELLENAR PASAPORTE ---
-            const userPic = document.getElementById('card-photo');
-            if(userPic) userPic.src = u.picture.large;
-
-            const ghostPic = document.getElementById('card-ghost-photo');
-            if(ghostPic) ghostPic.src = u.picture.large;
+            const userPic = document.getElementById('card-photo'); if(userPic) userPic.src = u.picture.large;
+            const ghostPic = document.getElementById('card-ghost-photo'); if(ghostPic) ghostPic.src = u.picture.large;
             
-            // QR Code en Sidebar
             const qrData = `ID:${u.login.uuid}|${u.name.last},${u.name.first}|OP:${ghostData.opName}`;
             const qrImg = document.getElementById('card-qr');
             if(qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
 
-            document.getElementById('card-surname').innerText = u.name.last.toUpperCase();
-            document.getElementById('card-firstname').innerText = u.name.first.toUpperCase();
-            document.getElementById('card-signature').innerText = `${u.name.first} ${u.name.last}`;
+            setVal('card-surname', u.name.last.toUpperCase());
+            setVal('card-firstname', u.name.first.toUpperCase());
+            
+            const sig = `${u.name.first} ${u.name.last}`;
+            setVal('card-signature', sig);
+            setVal('card-signature-back', sig);
             
             const natLabel = (document.getElementById('region').value === 'ru') ? 'RUS' : u.nat;
-            document.getElementById('card-nat').innerText = natLabel;
+            setVal('card-nat', natLabel);
             
             const dob = new Date(u.dob.date);
-            document.getElementById('card-dob').innerText = dob.toLocaleDateString();
-            document.getElementById('card-sex').innerText = (u.gender === 'male') ? 'M' : 'F';
-            document.getElementById('card-uuid').innerText = u.login.uuid;
+            setVal('card-dob', dob.toLocaleDateString());
+            setVal('card-sex', (u.gender === 'male') ? 'M' : 'F');
+            setVal('card-uuid', u.login.uuid);
             
-            // Nuevo campo: Blood Type & Dept
-            document.getElementById('card-blood').innerText = ghostData.blood || genBlood();
-            document.getElementById('card-dept').innerText = (ghostData.dept || genDept()).toUpperCase();
+            setVal('card-blood', ghostData.blood || genBlood());
+            setVal('card-dept', (ghostData.dept || genDept()).toUpperCase());
+            setVal('card-doc-no', genDNI(age));
+            setVal('card-height', genHeight() + " M");
+            setVal('card-eyes', genEyes());
 
-            // Nuevo campo: DNI (Correcto con edad), Height, Eyes
-            document.getElementById('card-doc-no').innerText = genDNI(age);
-            document.getElementById('card-height').innerText = genHeight() + " M";
-            document.getElementById('card-eyes').innerText = genEyes();
+            const issued = new Date(); issued.setFullYear(issued.getFullYear() - 1);
+            setVal('card-dates', `${issued.toLocaleDateString()} / PERM`);
 
-            // Dates
-            const issued = new Date();
-            issued.setFullYear(issued.getFullYear() - 1);
-            document.getElementById('card-dates').innerText = `${issued.toLocaleDateString()} / PERM`;
-
-            // MRZ Code
-            const mrzNat = (u.nat === 'US') ? 'USA' : u.nat.padEnd(3, 'X');
             const mrz1 = `P<LVT${u.name.last.toUpperCase()}<<${u.name.first.toUpperCase()}`;
             const rnd = Math.floor(Math.random() * 9999999);
             const mrz2 = `${u.login.uuid.substring(0,9).toUpperCase()}${u.nat}000000${u.gender==='male'?'M':'F'}${rnd}`;
-            
-            document.getElementById('card-mrz').innerHTML = `${mrz1.substring(0,44)}\n${mrz2.substring(0,44)}`;
+            const mrzEl = document.getElementById('card-mrz');
+            if(mrzEl) mrzEl.innerHTML = `${mrz1.substring(0,44)}<br>${mrz2.substring(0,44)}`;
 
-            // --- RELLENAR EXPEDIENTE (NUEVO DISEÑO) ---
-            document.getElementById('doc-header-name').innerText = `${u.name.last}, ${u.name.first}`.toUpperCase();
-            document.getElementById('doc-full-name').innerText = `${u.name.first} ${u.name.last}`.toUpperCase();
-            document.getElementById('doc-dob').innerText = dob.toLocaleDateString();
-            document.getElementById('doc-blood').innerText = ghostData.blood || genBlood();
-            
-            // Nuevo campo Address en expediente
-            document.getElementById('doc-address').innerText = (ghostData.address || genAddress()).toUpperCase();
-            // Nuevo campo Company
-            document.getElementById('doc-company').innerText = (ghostData.company || genCompany()).toUpperCase();
-
-            // SECTION II: FINANCIAL INTELLIGENCE (Separate Fields)
-            document.getElementById('doc-cc').innerText = ghostData.finance.cc;
-            document.getElementById('doc-cc-exp').innerText = `${ghostData.finance.exp} / CVV: ${ghostData.finance.cvv}`;
-            document.getElementById('doc-iban').innerText = ghostData.finance.iban;
-            document.getElementById('doc-swift').innerText = ghostData.finance.swift;
-            
-            // SECTION III: DIGITAL FOOTPRINT
-            document.getElementById('doc-ip').innerText = ghostData.net.ip;
-            document.getElementById('doc-mac').innerText = ghostData.net.mac;
-            document.getElementById('doc-user').innerText = u.login.username;
-            document.getElementById('doc-pass').innerText = u.login.sha256.substring(0, 32); // Using hash for password hash
-
-            // SECTION IV: CRYPTO ASSETS
+            // EXPEDIENTE
+            setVal('doc-header-name', `${u.name.last}, ${u.name.first}`.toUpperCase());
+            setVal('doc-full-name', `${u.name.first} ${u.name.last}`.toUpperCase());
+            setVal('doc-dob', dob.toLocaleDateString());
+            setVal('doc-blood', ghostData.blood || genBlood());
+            setVal('doc-address', (ghostData.address || genAddress()).toUpperCase());
+            setVal('doc-company', (ghostData.company || genCompany()).toUpperCase());
+            setVal('doc-cc', ghostData.finance.cc);
+            setVal('doc-cc-exp', `${ghostData.finance.exp} / CVV: ${ghostData.finance.cvv}`);
+            setVal('doc-iban', ghostData.finance.iban);
+            setVal('doc-swift', ghostData.finance.swift);
+            setVal('doc-ip', ghostData.net.ip);
+            setVal('doc-mac', ghostData.net.mac);
+            setVal('doc-user', u.login.username);
+            setVal('doc-pass', u.login.sha256.substring(0, 32)); 
             const btcAmt = (Math.random() * 2.5).toFixed(4);
             const btcVal = (btcAmt * ghostData.btcPrice).toLocaleString('en-US', {style:'currency', currency:'USD'});
-            document.getElementById('doc-wallet').innerText = "bc1q" + u.login.sha256.substring(0, 34);
-            document.getElementById('doc-balance').innerText = `${btcAmt} BTC (${btcVal})`;
-            document.getElementById('doc-altcoin').innerText = (ghostData.altcoin || "XMR (Monero)").toUpperCase();
-            
-            // SECTION V: ASSETS (NEW)
-            document.getElementById('doc-vehicle').innerText = (ghostData.vehicle || genVehicle()).toUpperCase();
-            document.getElementById('doc-vin').innerText = ghostData.vin || genVin();
-            document.getElementById('doc-ua').innerText = ghostData.ua || genUA();
+            setVal('doc-wallet', "bc1q" + u.login.sha256.substring(0, 34));
+            setVal('doc-balance', `${btcAmt} BTC (${btcVal})`);
+            setVal('doc-altcoin', (ghostData.altcoin || "XMR (Monero)").toUpperCase());
+            setVal('doc-vehicle', (ghostData.vehicle || genVehicle()).toUpperCase());
+            setVal('doc-vin', ghostData.vin || genVin());
+            setVal('doc-ua', ghostData.ua || genUA());
+            setVal('doc-op-name', `OPERATION: ${(ghostData.opName || genBeer()).toUpperCase()}`);
+            setVal('doc-equipment', (ghostData.equipment || genAppliance()).toUpperCase());
+            setVal('doc-quote', `${ghostData.quote}`);
 
-            // SECTION VI: MISSION (NEW)
-            document.getElementById('doc-op-name').innerText = `OPERATION: ${(ghostData.opName || genBeer()).toUpperCase()}`;
-            document.getElementById('doc-equipment').innerText = (ghostData.equipment || genAppliance()).toUpperCase();
-            
-            document.getElementById('doc-quote').innerText = `${ghostData.quote}`;
-
-            // Mostrar
             document.getElementById('results-container').classList.remove('hidden');
-            window.scrollTo(0, 0); // Scroll to top for ID card view
+            window.scrollTo(0, 0);
         }
 
-        // --- SCRIPT 3D INTERACTIVO ---
+        // --- SCRIPT 3D INTERACTIVO DRAG-TO-ROTATE ---
         (function() {
-            const card = document.querySelector('.id-card');
-            const container = document.querySelector('.id-card-container');
+            const cardObject = document.querySelector('.card-object');
+            const scene = document.querySelector('.scene-3d');
             const glare = document.querySelector('.glare');
 
-            // Función para rotar la tarjeta
-            const rotateCard = (x, y) => {
-                const rect = container.getBoundingClientRect();
-                const centerX = rect.left + rect.width / 2;
-                const centerY = rect.top + rect.height / 2;
+            let isDragging = false;
+            let startX, startY;
+            let currentX = 0, currentY = 0;
+            let rotationX = 0, rotationY = 0;
 
-                const rotateX = ((y - centerY) / (rect.height / 2)) * -15; // Max 15 degrees tilt
-                const rotateY = ((x - centerX) / (rect.width / 2)) * 15;
+            const startDrag = (e) => {
+                isDragging = true;
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                startX = clientX - currentX;
+                startY = clientY - currentY;
+                scene.style.cursor = 'grabbing';
+            };
 
-                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            const drag = (e) => {
+                if (!isDragging) return;
+                e.preventDefault();
                 
-                // Mover glare (brillo)
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+                currentX = clientX - startX;
+                currentY = clientY - startY;
+
+                // Mapear movimiento a grados (ajustar sensibilidad)
+                rotationY = currentX * 0.5; 
+                rotationX = -(currentY * 0.5); // Invertir Y para movimiento natural
+
+                // Limitar rotación X para que no de vueltas locas verticales
+                if(rotationX > 45) rotationX = 45;
+                if(rotationX < -45) rotationX = -45;
+
+                updateTransform();
+            };
+
+            const endDrag = () => {
+                isDragging = false;
+                scene.style.cursor = 'grab';
+                // Efecto de inercia o mantener posición. Aquí mantenemos posición para inspección.
+            };
+            
+            const updateTransform = () => {
+                cardObject.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+                
+                // Mover glare dinámicamente basado en la rotación
+                // Normalizamos rotación para mover el gradiente
+                const gX = 50 + (rotationY % 360) / 3;
+                const gY = 50 - (rotationX) / 2;
                 if(glare) {
-                    const glareX = 50 + (rotateY * 2);
-                    const glareY = 50 - (rotateX * 2);
-                    glare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.3), transparent 60%)`;
-                    glare.style.opacity = '1';
+                    glare.style.background = `radial-gradient(circle at ${gX}% ${gY}%, rgba(255,255,255,0.4), transparent 50%)`;
+                    glare.style.opacity = Math.max(0, 0.5 - (Math.abs(rotationY%180)/180)); // Brilla más de frente
                 }
             };
 
-            // Resetear tarjeta
-            const resetCard = () => {
-                card.style.transform = `rotateX(0deg) rotateY(0deg)`;
-                if(glare) glare.style.opacity = '0';
+            // Resetear con doble click/tap
+            const resetRotation = () => {
+                currentX = 0; currentY = 0;
+                rotationX = 0; rotationY = 0;
+                cardObject.style.transition = 'transform 0.5s ease-out';
+                updateTransform();
+                setTimeout(() => { cardObject.style.transition = 'transform 0.1s'; }, 500); // Quitar transición para drag fluido
             };
 
-            // Eventos PC (Mouse)
-            container.addEventListener('mousemove', (e) => {
-                // Eliminar transición durante movimiento para fluidez
-                card.style.transition = 'none';
-                rotateCard(e.clientX, e.clientY);
-            });
+            // Listeners Mouse
+            scene.addEventListener('mousedown', startDrag);
+            window.addEventListener('mousemove', drag); // Window para no perder drag si sales del div
+            window.addEventListener('mouseup', endDrag);
+            scene.addEventListener('dblclick', resetRotation);
 
-            container.addEventListener('mouseleave', () => {
-                // Añadir transición para suavidad al volver al centro
-                card.style.transition = 'transform 0.5s ease-out';
-                resetCard();
-            });
-
-            // Eventos Móvil (Touch)
-            container.addEventListener('touchmove', (e) => {
-                e.preventDefault(); // Evitar scroll mientras se rota
-                const touch = e.touches[0];
-                card.style.transition = 'none';
-                rotateCard(touch.clientX, touch.clientY);
-            }, { passive: false });
-
-            container.addEventListener('touchend', () => {
-                card.style.transition = 'transform 0.5s ease-out';
-                resetCard();
-            });
+            // Listeners Touch
+            scene.addEventListener('touchstart', startDrag, {passive: false});
+            window.addEventListener('touchmove', drag, {passive: false});
+            window.addEventListener('touchend', endDrag);
+            
+            // Inicializar
+            updateTransform();
 
         })();
 
