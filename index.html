@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>LEVIATHAM | GHOST ID GENERATOR</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Fuentes Tácticas, de Máquina de Escribir y Sellos -->
-    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&family=Courier+Prime:wght@400;700&family=Fira+Code:wght@400;600&family=Special+Elite&family=Black+Ops+One&display=swap" rel="stylesheet">
+    <!-- Fuentes Tácticas, de Máquina de Escribir, Sellos y FIRMA -->
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700;800&family=Courier+Prime:wght@400;700&family=Fira+Code:wght@400;600&family=Special+Elite&family=Black+Ops+One&family=Libre+Barcode+39+Text&family=Mrs+Saint+Delafield&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -76,13 +76,19 @@
 
         /* --- CREDENCIAL GHOST ID (REALISMO PULIDO + EFECTOS 3D) --- */
         .id-card-container {
-            perspective: 1500px;
+            perspective: 1200px; /* Perspectiva ajustada para mejor profundidad */
             width: 100%; max-width: 600px; margin: 0 auto;
+            transform-style: preserve-3d;
+            cursor: grab; /* Cursor de agarre */
         }
+        .id-card-container:active {
+            cursor: grabbing;
+        }
+
         .id-card {
             display: grid; 
-            grid-template-columns: 130px 1fr; 
-            gap: 15px;
+            grid-template-columns: 140px 1fr; /* Ancho fijo para la sidebar */
+            gap: 0; 
             width: 100%;
             border-radius: 12px; 
             /* Fondo Guilloché más complejo y oscuro */
@@ -96,19 +102,28 @@
             position: relative; overflow: hidden;
             box-shadow: 0 25px 50px rgba(0,0,0,0.9), inset 0 0 0 2px rgba(255,255,255,0.05);
             font-family: 'Rajdhani', sans-serif;
-            padding: 20px;
             color: #e0e0e0;
-            transition: transform 0.4s ease, box-shadow 0.4s ease;
+            
+            /* Preparación para 3D JS */
             transform-style: preserve-3d;
+            transform: rotateX(0deg) rotateY(0deg);
+            /* Transición inicial, JS la gestionará después */
+            transition: transform 0.1s ease-out; 
         }
-        /* Efecto de inclinación 3D al pasar el mouse */
-        .id-card:hover {
-            transform: rotateX(5deg) rotateY(-5deg) scale(1.02);
-            box-shadow: 20px 30px 60px rgba(0,0,0,1);
-        }
+        
         @media (max-width: 600px) {
             .id-card { grid-template-columns: 1fr; text-align: center; }
-            .id-sidebar { align-items: center; }
+            .id-sidebar { 
+                flex-direction: row; 
+                width: 100%; 
+                border-right: none; 
+                border-bottom: 1px solid #333; 
+                padding: 10px;
+                justify-content: center;
+                gap: 15px;
+                flex-wrap: wrap;
+            } 
+            .vertical-text { display: none; } 
         }
 
         /* Holograma UV Reactivo Mejorado */
@@ -116,10 +131,20 @@
             content: ""; position: absolute; inset: -50%;
             background: linear-gradient(135deg, transparent 40%, rgba(0, 255, 136, 0.2) 45%, rgba(0, 119, 255, 0.2) 50%, rgba(0, 255, 136, 0.2) 55%, transparent 60%);
             mix-blend-mode: color-dodge;
+            /* La animación automática se reemplaza parcialmente por el movimiento del mouse, pero dejamos esta de fondo */
             animation: holo-shift 8s linear infinite;
             pointer-events: none; z-index: 50; opacity: 0.7;
+            transform: translateZ(1px);
         }
         @keyframes holo-shift { 0% { transform: translateY(-30%) rotate(20deg); } 100% { transform: translateY(30%) rotate(20deg); } }
+
+        /* Reflejo de luz dinámico (Glare) */
+        .glare {
+            position: absolute; width: 100%; height: 100%; top: 0; left: 0;
+            background: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.3), transparent 60%);
+            opacity: 0; mix-blend-mode: overlay; pointer-events: none; z-index: 60;
+            transition: opacity 0.2s;
+        }
 
         /* Microtexto de seguridad de fondo */
         .security-pattern {
@@ -132,26 +157,59 @@
             grid-column: 1 / -1;
             display: flex; justify-content: space-between; align-items: flex-end;
             border-bottom: 2px solid var(--primary);
-            padding-bottom: 10px; margin-bottom: 15px;
+            padding: 15px 20px 10px; /* Ajuste padding */
             position: relative; z-index: 2;
             text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+            background: linear-gradient(to bottom, rgba(0,0,0,0.8), transparent);
+            transform: translateZ(20px); /* Efecto de profundidad */
         }
         
         .id-header-text h2 { font-size: 20px; font-weight: 900; letter-spacing: 3px; color: #fff; text-transform: uppercase; }
         .id-header-text span { font-size: 10px; color: var(--primary); letter-spacing: 3px; font-weight: bold; }
 
+        /* --- SIDEBAR CORREGIDA Y PERSONALIZADA --- */
         .id-sidebar {
-            display: flex; flex-direction: column; align-items: center;
-            position: relative; z-index: 2;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            justify-content: flex-start;
+            position: relative; 
+            z-index: 2;
+            background: rgba(0, 20, 0, 0.3); 
+            border-right: 1px solid rgba(255,255,255,0.1); 
+            padding: 15px 0;
+            flex-shrink: 0; 
+            overflow: hidden; 
+            transform: translateZ(15px);
+        }
+
+        .vertical-text {
+            writing-mode: vertical-rl;
+            text-orientation: mixed;
+            transform: rotate(180deg);
+            font-size: 8px;
+            color: #444;
+            letter-spacing: 2px;
+            margin-top: 10px;
+            font-family: 'Share Tech Mono';
+            border-left: 1px solid #333;
+            padding-left: 4px;
+            height: 100%;
+            max-height: 40px;
         }
 
         .id-photo-frame {
-            width: 105px; height: 135px; 
+            width: 100px; height: 130px; 
             border: 2px solid rgba(255,255,255,0.3);
             border-radius: 8px;
-            padding: 3px; position: relative; background: rgba(0,0,0,0.5);
+            padding: 3px; 
+            position: relative; 
+            background: #000;
             overflow: hidden;
             box-shadow: inset 0 0 15px rgba(0,0,0,1);
+            margin-bottom: 10px;
+            flex-shrink: 0; 
+            transform: translateZ(10px);
         }
         .id-photo-frame img { 
             width: 100%; height: 100%; object-fit: cover; border-radius: 6px; 
@@ -159,7 +217,24 @@
             position: relative; z-index: 2;
         }
         
-        /* Foto fantasma integrada mejorada */
+        /* QR Code en Sidebar */
+        .qr-frame {
+            background: white;
+            padding: 2px;
+            border-radius: 4px;
+            margin-top: auto;
+            margin-bottom: 5px;
+            width: 60px;
+            height: 60px;
+            flex-shrink: 0;
+            transform: translateZ(5px);
+        }
+        .qr-frame img {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Foto fantasma integrada */
         .ghost-photo {
             position: absolute;
             right: -20px; bottom: 40px;
@@ -168,7 +243,7 @@
             filter: grayscale(100%) invert(1);
             mix-blend-mode: overlay;
             z-index: 1; pointer-events: none;
-            transform: rotate(-5deg);
+            transform: rotate(-5deg) translateZ(2px);
             mask-image: radial-gradient(circle, black 30%, transparent 70%);
             -webkit-mask-image: radial-gradient(circle, black 30%, transparent 70%);
         }
@@ -180,8 +255,9 @@
             box-shadow: 0 3px 5px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.4);
             position: relative; overflow: hidden;
             border: 1px solid #8b6508;
+            flex-shrink: 0;
+            transform: translateZ(25px); /* El chip sobresale más */
         }
-        /* Patrón de Chip Realista */
         .chip::before { 
             content: ""; position: absolute; inset: 0;
             background-image: 
@@ -190,13 +266,39 @@
             background-size: 14px 100%, 100% 16px;
         }
 
-        .id-main { position: relative; z-index: 2; display: flex; flex-direction: column; gap: 8px; text-shadow: 0 1px 2px rgba(0,0,0,0.8); }
+        .id-main { 
+            position: relative; z-index: 2; 
+            display: flex; flex-direction: column; gap: 8px; 
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            padding: 0 20px 20px 10px; 
+            transform: translateZ(10px);
+        }
         
         .data-row { display: flex; gap: 15px; flex-wrap: wrap; }
         .data-field-v2 { flex-grow: 1; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; }
         .label-v2 { font-size: 7px; color: #aaa; display: block; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 1px; }
         .value-v2 { font-size: 13px; color: #fff; font-weight: 700; text-transform: uppercase; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
         .value-v2.highlight { color: var(--primary); font-size: 15px; font-weight: 800; }
+        
+        .signature-field {
+            font-family: 'Mrs Saint Delafield', cursive;
+            font-size: 24px;
+            color: rgba(0, 0, 0, 0.7); /* Tinta negra translúcida */
+            position: absolute;
+            bottom: 60px;
+            right: 20px;
+            transform: rotate(-5deg) translateZ(15px);
+            z-index: 5;
+            text-shadow: 0 0 2px rgba(255,255,255,0.5);
+            pointer-events: none;
+            mix-blend-mode: multiply;
+        }
+        /* Firma para modo oscuro */
+        .id-card .signature-field {
+            color: rgba(255, 255, 255, 0.8);
+            mix-blend-mode: normal;
+            text-shadow: 0 0 5px rgba(0,0,0,0.8);
+        }
 
         .mrz-container {
             font-family: 'OCR-B', 'Courier New', monospace;
@@ -208,6 +310,7 @@
             font-weight: bold; text-transform: uppercase;
             box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
             border: 1px solid #000;
+            transform: translateZ(5px);
         }
 
         /* --- EXPEDIENTE PAPEL (TOTALMENTE REDISEÑADO - REALISTA & CLASIFICADO) --- */
@@ -304,29 +407,44 @@
         /* --- TERMINAL LINUX BOOT --- */
         #hack-terminal {
             position: fixed; inset: 0; background: #000; z-index: 100;
-            padding: 40px; 
+            padding: 20px; 
             font-family: 'Fira Code', 'Courier New', monospace; /* Fuente Real de Terminal */
             font-size: 14px; 
             color: #ccc;
-            display: none; flex-direction: column; justify-content: flex-start;
-            line-height: 1.5;
+            display: none; flex-direction: column; 
+            line-height: 1.4;
             cursor: text;
+            overflow: hidden;
         }
         
-        .linux-ascii { color: var(--primary); font-size: 10px; line-height: 10px; white-space: pre; margin-bottom: 20px; font-weight: bold; }
+        .terminal-header {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            margin-bottom: 2rem; border-bottom: 1px solid #333; padding-bottom: 1rem;
+            width: 100%;
+        }
+
+        .linux-ascii { 
+            color: var(--primary); font-size: 10px; line-height: 10px; white-space: pre; 
+            font-weight: bold; text-align: center; margin-bottom: 10px;
+            text-shadow: 0 0 5px rgba(0,255,0,0.5);
+        }
         
-        .boot-log { flex-grow: 1; overflow-y: hidden; display: flex; flex-direction: column; justify-content: flex-end; padding-bottom: 20px; }
+        .boot-log { 
+            flex-grow: 1; overflow-y: hidden; display: flex; flex-direction: column; justify-content: flex-end; 
+            width: 100%; max-width: 900px; margin: 0 auto;
+        }
         
         .log-line { display: flex; align-items: flex-start; margin-bottom: 2px; }
-        .log-time { color: #555; margin-right: 10px; min-width: 80px; }
+        .log-time { color: #666; margin-right: 15px; min-width: 80px; }
         .log-status { font-weight: bold; margin-right: 10px; min-width: 50px; text-align: center; }
         .status-ok { color: var(--primary); }
         .status-fail { color: #ff3333; }
         .status-warn { color: #ffcc00; }
-        .log-msg { color: #ddd; white-space: pre-wrap; }
+        .log-msg { color: #ddd; white-space: pre-wrap; word-break: break-all; }
 
-        .prompt-line { display: flex; align-items: center; color: #fff; margin-top: 5px; }
-        .prompt-user { color: var(--primary); font-weight: bold; }
+        .prompt-line { display: flex; align-items: center; color: #fff; margin-top: 10px; }
+        .prompt-user { color: #ff3333; font-weight: bold; }
+        .prompt-host { color: #fff; }
         .prompt-path { color: #3333ff; font-weight: bold; }
         .cursor-blink { 
             display: inline-block; width: 8px; height: 16px; background: #ccc; 
@@ -346,13 +464,16 @@
 
     <!-- TERMINAL DE CARGA SYSTEM404G -->
     <div id="hack-terminal">
-        <div class="linux-ascii">
-   __             _       _   _                     ___  ____  
-  / /  _____   _ (_) __ _| |_| |__   __ _ _ __ ___ / _ \/ ___| 
- / /  / _ \ \ / /| |/ _` | __| '_ \ / _` | '_ ` _ \ | | \___ \ 
-/ /__|  __/\ V / | | (_| | |_| | | | (_| | | | | | | |_| |___) |
-\____/\___| \_/  |_|\__,_|\__|_| |_|\__,_|_| |_| |_|\___/|____/ 
-        KERNEL v5.15.0-kali // SECURE BOOT ENABLED
+        <div class="terminal-header">
+            <div class="mb-2 text-4xl text-green-600 animate-pulse"><i class="fas fa-biohazard"></i></div>
+            <div class="linux-ascii">
+  _               _       _   _                     
+ | |    _____   _(_) __ _| |_| |__   __ _ _ __ ___  
+ | |   / _ \ \ / / |/ _` | __| '_ \ / _` | '_ ` _ \ 
+ | |__|  __/\ V /| | (_| | |_| | | | (_| | | | | | |
+ |_____\___| \_/ |_|\__,_|\__|_| |_|\__,_|_| |_| |_|
+            </div>
+            <div class="text-xs text-gray-500 tracking-[0.3em] font-bold mt-2">KALI LINUX // LEVIATHAM EDITION v2.0</div>
         </div>
         <div class="boot-log" id="boot-log"></div>
     </div>
@@ -416,8 +537,10 @@
             <!-- TARJETA DE ACCESO MEJORADA (EFECTO 3D) -->
             <div class="id-card-container">
                 <div class="id-card">
+                    <div class="glare"></div> <!-- Capa de brillo -->
                     <div class="security-pattern"></div>
                     <img id="card-ghost-photo" class="ghost-photo" src="" alt="Ghost">
+                    <div id="card-signature" class="signature-field"></div>
                     
                     <!-- Cabecera Tarjeta -->
                     <div class="id-header">
@@ -433,6 +556,12 @@
                         <div class="chip"></div>
                         <div class="id-photo-frame">
                             <img id="card-photo" src="" alt="Subject">
+                        </div>
+                        <div class="qr-frame">
+                            <img id="card-qr" src="" alt="QR">
+                        </div>
+                        <div class="vertical-text">
+                            SECURE ID // v2.4
                         </div>
                     </div>
 
@@ -464,19 +593,34 @@
                             </div>
                         </div>
                         
-                        <!-- NUEVA FILA PARA GRUPO SANGUÍNEO -->
+                        <!-- NUEVA FILA: DNI, Altura y Ojos -->
                         <div class="data-row">
                             <div class="data-field-v2">
-                                <span class="label-v2">ISSUING AUTHORITY</span>
-                                <span class="value-v2">LEVIATHAM SEC. OPS.</span>
+                                <span class="label-v2">DOCUMENT NO.</span>
+                                <span id="card-doc-no" class="value-v2 text-green-400">---</span>
+                            </div>
+                            <div class="data-field-v2">
+                                <span class="label-v2">HEIGHT</span>
+                                <span id="card-height" class="value-v2">---</span>
+                            </div>
+                            <div class="data-field-v2">
+                                <span class="label-v2">EYES</span>
+                                <span id="card-eyes" class="value-v2">---</span>
+                            </div>
+                        </div>
+
+                        <div class="data-row">
+                            <div class="data-field-v2">
+                                <span class="label-v2">DEPARTMENT</span>
+                                <span id="card-dept" class="value-v2 text-green-400">---</span>
                             </div>
                             <div class="data-field-v2">
                                 <span class="label-v2">BLOOD TYPE</span>
                                 <span id="card-blood" class="value-v2 text-red-500">---</span>
                             </div>
                             <div class="data-field-v2">
-                                <span class="label-v2">EXPIRES</span>
-                                <span class="value-v2 text-red-500">PERMANENT</span>
+                                <span class="label-v2">ISSUED / EXPIRES</span>
+                                <span class="value-v2" id="card-dates">--- / PERM</span>
                             </div>
                         </div>
 
@@ -535,6 +679,16 @@
                         <span class="box-label">BLOOD TYPE</span>
                         <span class="box-value highlight" id="doc-blood">---</span>
                     </div>
+                    <!-- NUEVO CAMPO: Safe House -->
+                    <div class="form-box span-4">
+                        <span class="box-label">KNOWN SAFE HOUSE / LOCATION</span>
+                        <span class="box-value mono-sm" id="doc-address">---</span>
+                    </div>
+                    <!-- NUEVO CAMPO: Front Company -->
+                    <div class="form-box span-4">
+                        <span class="box-label">COVERT FRONT COMPANY</span>
+                        <span class="box-value" id="doc-company">---</span>
+                    </div>
 
                     <!-- SECCIÓN FINANCIERA (REORGANIZADA SEGÚN PEDIDO) -->
                     <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
@@ -590,6 +744,11 @@
                         <span class="box-label">EST. BALANCE</span>
                         <span class="box-value highlight" id="doc-balance">---</span>
                     </div>
+                    <!-- NUEVO CAMPO: Altcoin -->
+                    <div class="form-box span-4">
+                        <span class="box-label">SECONDARY CRYPTO ASSET (LAUNDERED)</span>
+                        <span class="box-value mono-sm" id="doc-altcoin">---</span>
+                    </div>
                     
                     <!-- NUEVA SECCION V: TECH FINGERPRINT (SOLICITADA) -->
                     <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
@@ -607,10 +766,23 @@
                         <span class="box-label">LAST KNOWN USER AGENT</span>
                         <span class="box-value mono-sm" style="font-size: 10px;" id="doc-ua">---</span>
                     </div>
+                    
+                    <!-- NUEVA SECCION VI: MISSION DETAILS (NUEVAS APIS) -->
+                    <div class="form-box span-4" style="background: #222; color: #fff; margin-top: 10px;">
+                        <span class="box-label" style="color: #aaa; border-color: #555;">SECTION VI: MISSION STATUS</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">OPERATION CODENAME</span>
+                        <span class="box-value highlight" id="doc-op-name">---</span>
+                    </div>
+                    <div class="form-box span-2">
+                        <span class="box-label">ASSIGNED EQUIPMENT</span>
+                        <span class="box-value" id="doc-equipment">---</span>
+                    </div>
                 </div>
 
                  <div class="paper-section mt-6">
-                     <div class="paper-title" style="background: #b00;">VI. INTERCEPTED COMMUNICATION FRAGMENT</div>
+                     <div class="paper-title" style="background: #b00;">VII. INTERCEPTED COMMUNICATION FRAGMENT</div>
                      <div class="comms-box">
                         "<span id="doc-quote">---</span>"
                     </div>
@@ -663,6 +835,29 @@
         function genVehicle() { const v = ['BLACK SUV - FORD EXPLORER', 'GREY SEDAN - TOYOTA CAMRY', 'MOTORCYCLE - KAWASAKI NINJA', 'VAN - MERCEDES SPRINTER']; return v[Math.floor(Math.random() * v.length)]; }
         function genVin() { return Math.random().toString(36).substring(2, 17).toUpperCase(); }
         function genUA() { const u = ['Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.1.1 Safari/605.1.15', 'Mozilla/5.0 (Linux; Android 10; SM-G960U) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.114 Mobile Safari/537.36']; return u[Math.floor(Math.random() * u.length)]; }
+        function genAddress() { return "UNKNOWN SAFE HOUSE #8492, SECTOR 7"; }
+        function genDept() { return "FIELD OPS"; }
+        function genBeer() { return "PROJECT CHAOS"; }
+        function genAppliance() { return "TACTICAL SCANNER"; }
+        
+        // Nueva Lógica de DNI basada en edad (Aproximación Argentina 2024)
+        function genDNI(age) {
+            let base, range;
+            if (age < 20) { base = 50000000; range = 10000000; }
+            else if (age < 30) { base = 40000000; range = 10000000; }
+            else if (age < 40) { base = 30000000; range = 10000000; }
+            else if (age < 50) { base = 23000000; range = 7000000; }
+            else if (age < 60) { base = 16000000; range = 7000000; }
+            else if (age < 70) { base = 10000000; range = 6000000; }
+            else { base = 1000000; range = 9000000; }
+            
+            return Math.floor(base + Math.random() * range);
+        }
+
+        function genHeight() { return (Math.random() * (2.00 - 1.55) + 1.55).toFixed(2); }
+        function genEyes() { const e = ['BROWN', 'BLUE', 'GREEN', 'HAZEL', 'GRAY']; return e[Math.floor(Math.random() * e.length)]; }
+        function genCompany() { const c = ['OMEGA SOLUTIONS', 'GLOBAL DYNAMICS', 'MASSIVE DYNAMIC', 'CYBERDYNE SYSTEMS', 'ACME CORP']; return c[Math.floor(Math.random() * c.length)]; }
+        function genCrypto() { return { coin_name: "Monero", symbol: "XMR" }; }
 
         let ghostData = {};
 
@@ -703,6 +898,11 @@
                 { msg: "Fetching secure financial data routes...", status: "OK" },
                 { msg: "Accessing vehicle registry database...", status: "OK" },
                 { msg: "Tracing digital fingerprint...", status: "OK" },
+                { msg: "Locating safe house coordinates...", status: "OK" },
+                { msg: "Assigning tactical equipment inventory...", status: "OK" },
+                { msg: "Establishing operation codename...", status: "OK" },
+                { msg: "Establishing shell company cover...", status: "OK" },
+                { msg: "Diversifying crypto assets...", status: "OK" },
                 { msg: "Finalizing dossier composition...", status: "OK" },
                 { msg: "Starting X11 server...", status: "OK" },
                 { msg: "Reached target Graphical Interface.", status: "OK" }
@@ -731,7 +931,7 @@
                     // Prompt final
                     logOutput.innerHTML += `
                         <div class="prompt-line">
-                            <span class="prompt-user">root@leviatham</span>:<span class="prompt-path">~</span># ./launch_gui.sh<span class="cursor-blink"></span>
+                            <span class="prompt-user">root@leviatham</span><span class="prompt-host">:~#</span>&nbsp;./launch_gui.sh<span class="cursor-blink"></span>
                         </div>
                     `;
                     setTimeout(() => {
@@ -765,7 +965,7 @@
                 ghostData.user = {
                     name: { first: "John", last: "Doe" },
                     location: { country: "Unknown", city: "Unknown" },
-                    dob: { date: "1990-01-01" },
+                    dob: { date: "1990-01-01", age: 30 },
                     login: { uuid: "unknown-uuid", username: "ghost", password: "123" },
                     picture: { large: "https://robohash.org/fallback" },
                     nat: "US", gender: "male"
@@ -841,10 +1041,75 @@
             } catch(e) {
                 ghostData.ua = genUA();
             }
+
+            // NUEVA API: Random Data API (Addresses) - DIRECCION SEGURA
+            try {
+                const res = await fetch('https://random-data-api.com/api/v2/addresses');
+                const data = await res.json();
+                ghostData.address = `${data.street_address}, ${data.city_name}, ${data.country}`;
+            } catch(e) {
+                ghostData.address = genAddress();
+            }
+
+            // NUEVA API: Random Data API (Commerce) - DEPARTAMENTO
+            try {
+                const res = await fetch('https://random-data-api.com/api/v2/commerce');
+                const data = await res.json();
+                ghostData.dept = data.department;
+            } catch(e) {
+                ghostData.dept = genDept();
+            }
+
+            // NUEVA API: Random Data API (Beers) - OPERACION
+            try {
+                const res = await fetch('https://random-data-api.com/api/v2/beers');
+                const data = await res.json();
+                ghostData.opName = data.name;
+            } catch(e) {
+                ghostData.opName = genBeer();
+            }
+
+            // NUEVA API: Random Data API (Appliances) - EQUIPAMIENTO
+            try {
+                const res = await fetch('https://random-data-api.com/api/v2/appliances');
+                const data = await res.json();
+                ghostData.equipment = data.equipment;
+            } catch(e) {
+                ghostData.equipment = genAppliance();
+            }
+
+            // NUEVA API: Random Data API (Users) - BIOMETRIA REALISTA
+            try {
+                const res = await fetch('https://random-data-api.com/api/v2/users');
+                const data = await res.json();
+                // Si la API responde, usamos sus datos para altura y ojos si disponibles, si no, fallback
+            } catch(e) {
+                // Fallback silencioso
+            }
+
+            // NUEVA API: Random Data API (Company) - EMPRESA FANTASMA
+            try {
+                const res = await fetch('https://random-data-api.com/api/v2/company');
+                const data = await res.json();
+                ghostData.company = data.business_name;
+            } catch(e) {
+                ghostData.company = genCompany();
+            }
+
+            // NUEVA API: Random Data API (Crypto) - ALTCOIN
+            try {
+                const res = await fetch('https://random-data-api.com/api/v2/crypto_coin');
+                const data = await res.json();
+                ghostData.altcoin = `${data.coin_name} (${data.symbol})`;
+            } catch(e) {
+                const c = genCrypto();
+                ghostData.altcoin = `${c.coin_name} (${c.symbol})`;
+            }
         }
 
         function renderResults() {
             const u = ghostData.user;
+            const age = u.dob.age; // Obtener edad real del usuario
             
             // --- RELLENAR PASAPORTE ---
             const userPic = document.getElementById('card-photo');
@@ -853,18 +1118,36 @@
             const ghostPic = document.getElementById('card-ghost-photo');
             if(ghostPic) ghostPic.src = u.picture.large;
             
+            // QR Code en Sidebar
+            const qrData = `ID:${u.login.uuid}|${u.name.last},${u.name.first}|OP:${ghostData.opName}`;
+            const qrImg = document.getElementById('card-qr');
+            if(qrImg) qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(qrData)}`;
+
             document.getElementById('card-surname').innerText = u.name.last.toUpperCase();
             document.getElementById('card-firstname').innerText = u.name.first.toUpperCase();
+            document.getElementById('card-signature').innerText = `${u.name.first} ${u.name.last}`;
             
             const natLabel = (document.getElementById('region').value === 'ru') ? 'RUS' : u.nat;
             document.getElementById('card-nat').innerText = natLabel;
             
-            document.getElementById('card-dob').innerText = new Date(u.dob.date).toLocaleDateString();
+            const dob = new Date(u.dob.date);
+            document.getElementById('card-dob').innerText = dob.toLocaleDateString();
             document.getElementById('card-sex').innerText = (u.gender === 'male') ? 'M' : 'F';
             document.getElementById('card-uuid').innerText = u.login.uuid;
             
-            // Nuevo campo: Blood Type
+            // Nuevo campo: Blood Type & Dept
             document.getElementById('card-blood').innerText = ghostData.blood || genBlood();
+            document.getElementById('card-dept').innerText = (ghostData.dept || genDept()).toUpperCase();
+
+            // Nuevo campo: DNI (Correcto con edad), Height, Eyes
+            document.getElementById('card-doc-no').innerText = genDNI(age);
+            document.getElementById('card-height').innerText = genHeight() + " M";
+            document.getElementById('card-eyes').innerText = genEyes();
+
+            // Dates
+            const issued = new Date();
+            issued.setFullYear(issued.getFullYear() - 1);
+            document.getElementById('card-dates').innerText = `${issued.toLocaleDateString()} / PERM`;
 
             // MRZ Code
             const mrzNat = (u.nat === 'US') ? 'USA' : u.nat.padEnd(3, 'X');
@@ -877,9 +1160,14 @@
             // --- RELLENAR EXPEDIENTE (NUEVO DISEÑO) ---
             document.getElementById('doc-header-name').innerText = `${u.name.last}, ${u.name.first}`.toUpperCase();
             document.getElementById('doc-full-name').innerText = `${u.name.first} ${u.name.last}`.toUpperCase();
-            document.getElementById('doc-dob').innerText = new Date(u.dob.date).toLocaleDateString();
+            document.getElementById('doc-dob').innerText = dob.toLocaleDateString();
             document.getElementById('doc-blood').innerText = ghostData.blood || genBlood();
             
+            // Nuevo campo Address en expediente
+            document.getElementById('doc-address').innerText = (ghostData.address || genAddress()).toUpperCase();
+            // Nuevo campo Company
+            document.getElementById('doc-company').innerText = (ghostData.company || genCompany()).toUpperCase();
+
             // SECTION II: FINANCIAL INTELLIGENCE (Separate Fields)
             document.getElementById('doc-cc').innerText = ghostData.finance.cc;
             document.getElementById('doc-cc-exp').innerText = `${ghostData.finance.exp} / CVV: ${ghostData.finance.cvv}`;
@@ -897,12 +1185,16 @@
             const btcVal = (btcAmt * ghostData.btcPrice).toLocaleString('en-US', {style:'currency', currency:'USD'});
             document.getElementById('doc-wallet').innerText = "bc1q" + u.login.sha256.substring(0, 34);
             document.getElementById('doc-balance').innerText = `${btcAmt} BTC (${btcVal})`;
+            document.getElementById('doc-altcoin').innerText = (ghostData.altcoin || "XMR (Monero)").toUpperCase();
             
             // SECTION V: ASSETS (NEW)
             document.getElementById('doc-vehicle').innerText = (ghostData.vehicle || genVehicle()).toUpperCase();
             document.getElementById('doc-vin').innerText = ghostData.vin || genVin();
             document.getElementById('doc-ua').innerText = ghostData.ua || genUA();
 
+            // SECTION VI: MISSION (NEW)
+            document.getElementById('doc-op-name').innerText = `OPERATION: ${(ghostData.opName || genBeer()).toUpperCase()}`;
+            document.getElementById('doc-equipment').innerText = (ghostData.equipment || genAppliance()).toUpperCase();
             
             document.getElementById('doc-quote').innerText = `${ghostData.quote}`;
 
@@ -910,6 +1202,66 @@
             document.getElementById('results-container').classList.remove('hidden');
             window.scrollTo(0, 0); // Scroll to top for ID card view
         }
+
+        // --- SCRIPT 3D INTERACTIVO ---
+        (function() {
+            const card = document.querySelector('.id-card');
+            const container = document.querySelector('.id-card-container');
+            const glare = document.querySelector('.glare');
+
+            // Función para rotar la tarjeta
+            const rotateCard = (x, y) => {
+                const rect = container.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+
+                const rotateX = ((y - centerY) / (rect.height / 2)) * -15; // Max 15 degrees tilt
+                const rotateY = ((x - centerX) / (rect.width / 2)) * 15;
+
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                
+                // Mover glare (brillo)
+                if(glare) {
+                    const glareX = 50 + (rotateY * 2);
+                    const glareY = 50 - (rotateX * 2);
+                    glare.style.background = `radial-gradient(circle at ${glareX}% ${glareY}%, rgba(255,255,255,0.3), transparent 60%)`;
+                    glare.style.opacity = '1';
+                }
+            };
+
+            // Resetear tarjeta
+            const resetCard = () => {
+                card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+                if(glare) glare.style.opacity = '0';
+            };
+
+            // Eventos PC (Mouse)
+            container.addEventListener('mousemove', (e) => {
+                // Eliminar transición durante movimiento para fluidez
+                card.style.transition = 'none';
+                rotateCard(e.clientX, e.clientY);
+            });
+
+            container.addEventListener('mouseleave', () => {
+                // Añadir transición para suavidad al volver al centro
+                card.style.transition = 'transform 0.5s ease-out';
+                resetCard();
+            });
+
+            // Eventos Móvil (Touch)
+            container.addEventListener('touchmove', (e) => {
+                e.preventDefault(); // Evitar scroll mientras se rota
+                const touch = e.touches[0];
+                card.style.transition = 'none';
+                rotateCard(touch.clientX, touch.clientY);
+            }, { passive: false });
+
+            container.addEventListener('touchend', () => {
+                card.style.transition = 'transform 0.5s ease-out';
+                resetCard();
+            });
+
+        })();
 
         // --- ANIMACIÓN DE FONDO ---
         (function() {
